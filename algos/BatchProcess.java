@@ -22,12 +22,15 @@ public class BatchProcess {
 	 * @methodName		: varStepBatchProcess
 	 * @description	: 可变步长的批量处理算法
 	 * @param <T>		: 泛型类型
-	 * @param object	: 提供batchProcMethod和singleProcMethod方法的类对象
+	 * @param object1	: 提供batchProcMethod方法的类对象
+	 * @param object2	: 提供singleProcMethod方法的类对象
+	 * @param request	: 外部方法需要的request对象参数
 	 * @param dataRowList		: 待处理的T类型对象数据列表
 	 * @param normalList		: 正常处理的对象列表
 	 * @param correctList		: 修改处理的对象列表
 	 * @param batchProcMethod	: 正常批量处理的方法
 	 * @param singleProcMethod	: 单条修正处理的方法
+	 * @param errorProcFlag		: 错误处理策略标志值:0-继续处理，1-立即中止处理
 	 * @param debugLevel		: 调试信息输出设置，bit0-输出修正处理信息，bit1-输出详细步骤,bit2:输出尝试次数
 	 * @return					: 处理过程产生的异常日志列表
 	 * @throws Exception
@@ -39,13 +42,16 @@ public class BatchProcess {
 	 *
 	 */
 	public static <T> List<String> varStepBatchProcess(
-			Object object,
+			Object object1,
+			Object object2,
+			Object request,
 			List<T> dataRowList,
 			List<T> normalList,
 			List<T> correctList,			
 			Method batchProcMethod,
 			Method singleProcMethod,
-			int debugLevel){		
+			int errorProcFlag,
+			int debugLevel) throws Exception{		
 		// 返回的异常信息列表
 		List<String> errorList = new ArrayList<String>();			    	
     			
@@ -104,7 +110,7 @@ public class BatchProcess {
 	        			System.out.println(line);
         			}
         			
-        			batchProcMethod.invoke(object, subList);
+        			batchProcMethod.invoke(object1, request,subList);
         			
         			// 处理成功后，锚点移动到新位置，即下标偏移量+batchNum
         			anchorIdx += batchNum;
@@ -144,7 +150,7 @@ public class BatchProcess {
                     			System.out.println(line);                				
                 			}
                 			
-        					errInfo = (String)singleProcMethod.invoke(object, e, item);
+        					errInfo = (String)singleProcMethod.invoke(object2, request, e, item);
         					
 	        				// 添加异常日志
 	        				if (!errInfo.isEmpty()) {
@@ -152,6 +158,10 @@ public class BatchProcess {
 	        					errorList.add(errInfo);
 	        					if((debugLevel & 0x01) > 0) {
 		        					System.out.println(item.toString() + ": can not be fixed.");	        						
+	        					}
+	        					if(errorProcFlag == 1) {
+	        						// 如果遇到异常，中止处理
+	        						throw new Exception(errInfo);
 	        					}
 	        				}else {
 	        					// 修正处理成功
@@ -170,6 +180,10 @@ public class BatchProcess {
         					// 如果调用方法抛出异常信息
         					errInfo = ex.getMessage();
         					errorList.add(errInfo);        					
+        					if(errorProcFlag == 1) {
+        						// 如果遇到异常，中止处理
+        						throw new Exception(errInfo);
+        					}
         				}
         			}
         		}
@@ -186,7 +200,7 @@ public class BatchProcess {
             			System.out.println(line);        				
         			}
         			
-        			batchProcMethod.invoke(object, subList);
+        			batchProcMethod.invoke(object1, request, subList);
         			
         			// 处理成功后，锚点移动到新位置，即下标偏移量+batchNum
         			anchorIdx += batchNum;
@@ -226,13 +240,17 @@ public class BatchProcess {
                     			System.out.println(line);                				
                 			}
                 			
-        					errInfo = (String)singleProcMethod.invoke(object, e, item);
+        					errInfo = (String)singleProcMethod.invoke(object2, request, e, item);
 	        				// 添加异常日志
 	        				if (!errInfo.isEmpty()) {
 	        					// 如果有异常信息
 	        					errorList.add(errInfo);
 	        					if((debugLevel & 0x01) > 0) {
 		        					System.out.println(item + ": can not be fixed.");	        						
+	        					}
+	        					if(errorProcFlag == 1) {
+	        						// 如果遇到异常，中止处理
+	        						throw new Exception(errInfo);
 	        					}
 	        				}else {
 	        					if((debugLevel & 0x01) > 0) {
@@ -255,6 +273,10 @@ public class BatchProcess {
         					// 如果调用方法抛出异常信息
         					errInfo = ex.getMessage();
         					errorList.add(errInfo);        					
+        					if(errorProcFlag == 1) {
+        						// 如果遇到异常，中止处理
+        						throw new Exception(errInfo);
+        					}
         				}
         			}
         		}        		

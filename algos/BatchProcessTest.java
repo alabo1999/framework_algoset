@@ -4,9 +4,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +31,8 @@ import com.abc.example.common.impexp.BatchProcess;
 @SpringBootTest
 @Transactional
 public class BatchProcessTest {
+	@Autowired
+	MockHttpServletRequest request;
 	
 	@Test
 	// 可变步长的批量处理算法测试
@@ -59,25 +65,30 @@ public class BatchProcessTest {
 		// 用于存放修正处理的数据
 		List<String> correctList = new ArrayList<String>();
 		// 调用算法
-		List<String> errorList = BatchProcess.varStepBatchProcess(this, dataRowList, 
-				normalList, correctList, method1, method2,0x05);
-		// 打印errorList
-		System.out.println("errorList: " + errorList.toString());
-		// 打印correctList
-		System.out.println("correctList: " + correctList.toString());
+		try {
+			List<String> errorList = BatchProcess.varStepBatchProcess(this, this,request,
+					dataRowList,normalList, correctList, method1, method2,0,0x05);
+			// 打印errorList
+			System.out.println("errorList: " + errorList.toString());
+			// 打印correctList
+			System.out.println("correctList: " + correctList.toString());
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
 	// 构造批量处理的方法
 	// 将列表中字符串，批量转为整型，被反射调用，必须是public的
-	public void batchProcMethod(List<String> subDataList) {
+	public void batchProcMethod(HttpServletRequest request,List<String> subDataList) {
 		for (String item : subDataList) {
 			Integer.valueOf(item);
 		}
 	}
 	
 	// 构造单记录处理的方法，被反射调用，必须是public的
-	public String singleProcMethod(Exception e,String item) {
+	public String singleProcMethod(HttpServletRequest request,Exception e,String item) {
 		String errInfo = "";
 		try {
 			Double.valueOf(item).intValue();
