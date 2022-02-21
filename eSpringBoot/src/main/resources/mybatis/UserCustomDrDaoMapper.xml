@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.UserCustomDrDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.UserCustomDr">
+        INSERT INTO exa_user_custom_drs(
+            user_id,field_id,field_value,operator_name
+        )
+        VALUES(
+            #{userId},#{fieldId},#{fieldValue},#{operatorName}
+        )
+    </insert>
+    
+    <insert id="insertItems" parameterType="java.util.List">
+        INSERT INTO exa_user_custom_drs(
+            user_id,field_id,field_value,operator_name
+        )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+        (
+            #{item.userId},#{item.fieldId},#{item.fieldValue},#{item.operatorName}
+        )
+        </foreach>
+    </insert>
+    
+    <delete id="deleteItemByKey">
+        DELETE FROM 
+            exa_user_custom_drs
+        WHERE
+            user_id = #{recId} AND
+            field_id = #{fieldId} AND 
+            field_value = #{fieldValue}
+    </delete>
+    
+    <delete id="deleteItems" parameterType="java.util.Map">
+        DELETE FROM 
+            exa_user_custom_drs
+        WHERE
+            1 = 1
+            <if test='userId != null'>
+                AND user_id = #{userId,jdbcType=BIGINT}
+            </if>
+            <if test='fieldId != null'>
+                AND field_id = #{fieldId,jdbcType=INTEGER}
+            </if>                      
+    </delete>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.UserCustomDr">
+        SELECT 
+            user_id,field_id,field_value,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_user_custom_drs
+        WHERE
+            user_id = #{recId} AND
+            field_id = #{fieldId} AND 
+            field_value = #{fieldValue}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.UserCustomDr">
+        SELECT 
+            user_id,field_id,field_value,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_user_custom_drs
+        WHERE
+            1 = 1
+            <if test='userId != null'>
+                AND user_id = #{userId,jdbcType=BIGINT}
+            </if>
+            <if test='fieldId != null'>
+                AND field_id = #{fieldId,jdbcType=INTEGER}
+            </if> 
+        <if test='rows != null'>
+            <choose>
+                <when test='offset != null'>
+                    LIMIT #{offset,jdbcType=INTEGER},#{rows,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    LIMIT #{rows,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>

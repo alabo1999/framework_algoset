@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.DrFieldDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.DrField">
+        INSERT INTO exa_dr_fields(
+            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            remark,operator_name
+        )
+        VALUES(
+            #{fieldId},#{fieldName},#{invalidValue},#{hasSub},
+            #{isUserProp},#{isId},#{remark},#{operatorName}
+        )
+    </insert>
+    
+    <update id="updateItemByKey" parameterType="java.util.Map">
+        UPDATE
+            exa_dr_fields
+        <set>
+            <if test='fieldName != null'>
+                field_name = #{fieldName,jdbcType=VARCHAR},
+            </if>
+            <if test='invalidValue != null'>
+                invalid_value = #{invalidValue,jdbcType=VARCHAR},
+            </if>
+            <if test='hasSub != null'>
+                has_sub = #{hasSub,jdbcType=TINYINT},
+            </if>
+            <if test='isUserProp != null'>
+                is_user_prop = #{isUserProp,jdbcType=TINYINT},
+            </if>
+            <if test='isId != null'>
+                is_id = #{isId,jdbcType=TINYINT},
+            </if>
+            <if test='remark != null'>
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test='operatorName != null'>
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test='deleteFlag != null'>
+                delete_flag = #{deleteFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            field_id = #{fieldId}
+    </update>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.DrField">
+        SELECT 
+            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_dr_fields
+        WHERE
+            field_id = #{fieldId}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.DrField">
+        SELECT 
+            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_dr_fields
+        WHERE
+            1 = 1
+            <if test='fieldId != null'>
+                AND field_id = #{fieldId,jdbcType=INTEGER}
+            </if>
+            <if test='deleteFlag != null'>
+                AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
+            </if>
+    </select>
+
+    <select id="selectAllItems" resultType="com.abc.example.entity.DrField">
+        SELECT 
+            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_dr_fields
+        WHERE
+            delete_flag = 0
+    </select>
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.RoleDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.Role">
+        INSERT INTO exa_roles(
+            role_id,role_name,role_type,remark,operator_name
+        )
+        VALUES(
+            #{roleId},#{roleName},#{roleType},#{remark},#{operatorName}
+        )
+    </insert>
+    
+    <update id="updateItemByKey" parameterType="java.util.Map">
+        UPDATE
+            exa_roles
+        <set>
+            <if test='roleName != null'>
+                role_name = #{roleName,jdbcType=VARCHAR},
+            </if>
+            <if test='roleType != null'>
+                role_type = #{roleType,jdbcType=TINYINT},
+            </if>
+            <if test='remark != null'>
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test='operatorName != null'>
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test='deleteFlag != null'>
+                delete_flag = #{deleteFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            role_id = #{roleId}
+    </update>
+    
+    <delete id="deleteItemByKey">
+        DELETE FROM 
+            exa_roles
+        WHERE
+            role_id = #{roleId}
+    </delete>
+    
+    <select id="selectItemsByCondition" resultType="com.abc.example.entity.Role">
+        SELECT 
+            role_id,role_name,role_type,remark,operator_name,delete_flag,create_time,
+            update_time
+        FROM
+            exa_roles
+        WHERE
+            1 = 1
+            <if test='roleName != null'>
+                AND role_name LIKE CONCAT('%',#{roleName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='roleType != null'>
+                AND role_type = #{roleType,jdbcType=TINYINT}
+            </if>
+            <if test='deleteFlag != null'>
+                AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
+            </if>
+    </select>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.Role">
+        SELECT 
+            role_id,role_name,role_type,remark,operator_name,delete_flag,create_time,
+            update_time
+        FROM
+            exa_roles
+        WHERE
+            role_id = #{roleId}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.Role">
+        SELECT 
+            role_id,role_name,role_type,remark,operator_name,delete_flag,create_time,
+            update_time
+        FROM
+            exa_roles
+        WHERE
+            1 = 1
+            <if test='roleType != null'>
+                AND role_type = #{roleType,jdbcType=TINYINT}
+            </if>
+            <if test='deleteFlag != null'>
+                AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
+            </if>
+        <if test='rows != null'>
+            <choose>
+                <when test='offset != null'>
+                    LIMIT #{offset,jdbcType=INTEGER},#{rows,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    LIMIT #{rows,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectAllItems" resultType="com.abc.example.entity.Role">
+        SELECT 
+            role_id,role_name,role_type,remark,operator_name,delete_flag,create_time,
+            update_time
+        FROM
+            exa_roles
+        WHERE
+            delete_flag = 0
+    </select>
+    
+</mapper>

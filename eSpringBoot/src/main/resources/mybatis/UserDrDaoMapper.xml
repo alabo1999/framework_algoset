@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.UserDrDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.UserDr">
+        INSERT INTO exa_user_drs(
+            user_id,field_id,field_name,dr_type,expr,operator_name
+        )
+        VALUES(
+            #{userId},#{fieldId},#{fieldName},#{drType},#{expr},#{operatorName}
+        )
+    </insert>
+    
+    <insert id="insertItems" parameterType="java.util.List">
+        INSERT INTO exa_user_drs(
+            user_id,field_id,field_name,dr_type,expr,operator_name
+        )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+        (
+            #{item.userId},#{item.fieldId},#{item.fieldName},#{item.drType},
+            #{item.expr},#{item.operatorName}
+        )
+        </foreach>
+    </insert>
+    
+    <update id="updateItemByKey" parameterType="java.util.Map">
+        UPDATE
+            exa_user_drs
+        <set>
+            <if test='fieldName != null'>
+                field_name = #{fieldName,jdbcType=VARCHAR},
+            </if>
+            <if test='drType != null'>
+                dr_type = #{drType,jdbcType=TINYINT},
+            </if>
+            <if test='expr != null'>
+                expr = #{expr,jdbcType=VARCHAR},
+            </if>
+            <if test='operatorName != null'>
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test='deleteFlag != null'>
+                delete_flag = #{deleteFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            user_id = #{userId} AND
+            field_id = #{fieldId}
+    </update>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.UserDr">
+        SELECT 
+            user_id,field_id,field_name,dr_type,expr,operator_name,delete_flag,
+            create_time,update_time
+        FROM
+            exa_user_drs
+        WHERE
+            user_id = #{userId} AND
+            field_id = #{fieldId}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.UserDr">
+        SELECT 
+            user_id,field_id,field_name,dr_type,expr,operator_name,delete_flag,
+            create_time,update_time
+        FROM
+            exa_user_drs
+        WHERE
+            1 = 1
+            <if test='userId != null'>
+                AND user_id = #{userId,jdbcType=BIGINT}
+            </if>
+            <if test='fieldId != null'>
+                AND field_id = #{fieldId,jdbcType=INTEGER}
+            </if>
+            <if test='drType != null'>
+                AND dr_type = #{drType,jdbcType=TINYINT}
+            </if>
+        <if test='rows != null'>
+            <choose>
+                <when test='offset != null'>
+                    LIMIT #{offset,jdbcType=INTEGER},#{rows,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    LIMIT #{rows,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>

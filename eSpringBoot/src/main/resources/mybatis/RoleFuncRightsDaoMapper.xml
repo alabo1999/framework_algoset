@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.RoleFuncRightsDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.RoleFuncRights">
+        INSERT INTO exa_role_func_rights(
+            role_id,func_id,sub_full_flag,operator_name
+        )
+        VALUES(
+            #{roleId},#{funcId},#{subFullFlag},#{operatorName}
+        )
+    </insert>
+    
+    <insert id="insertItems" parameterType="java.util.List">
+        INSERT INTO exa_role_func_rights(
+            role_id,func_id,sub_full_flag,operator_name
+        )
+        VALUES
+        <foreach collection ="list" item="item" index= "index" separator =",">
+        (
+            #{item.roleId},#{item.funcId},#{item.subFullFlag},#{item.operatorName}
+        )
+        </foreach>
+    </insert>
+    
+    <update id="updateItemByKey" parameterType="java.util.Map">
+        UPDATE
+            exa_role_func_rights
+        <set>
+            <if test='subFullFlag != null'>
+                sub_full_flag = #{subFullFlag,jdbcType=TINYINT},
+            </if>
+            <if test='operatorName != null'>
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test='deleteFlag != null'>
+                delete_flag = #{deleteFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            role_id = #{roleId} AND
+            func_id = #{funcId}
+    </update>
+    
+    <delete id="deleteItemByKey">
+        DELETE FROM 
+            exa_role_func_rights
+        WHERE
+            role_id = #{roleId} AND
+            func_id = #{funcId}
+    </delete>
+    
+    <delete id="deleteItems" parameterType="java.util.Map">
+        DELETE FROM 
+            exa_role_func_rights
+        WHERE
+            1 = 1
+            <if test='roleId != null'>
+                AND role_id = #{roleId,jdbcType=INTEGER}
+            </if>
+            <if test='funcId != null'>
+                AND func_id = #{funcId,jdbcType=INTEGER}
+            </if>
+    </delete>
+    
+    <select id="selectItemsByCondition" resultType="com.abc.example.entity.RoleFuncRights">
+        SELECT 
+            t1.role_id,t2.role_name,t2.role_type,t1.func_id,t3.func_name,t3.parent_id,
+            t1.sub_full_flag,t1.operator_name,t1.delete_flag,t1.create_time,
+            t1.update_time
+        FROM
+            exa_role_func_rights t1
+        INNER JOIN
+            exa_roles t2
+        ON
+            t1.role_id = t2.role_id
+        INNER JOIN
+            exa_functions t3
+        ON
+            t1.func_id = t3.func_id
+        WHERE
+            1 = 1
+            <if test='roleId != null'>
+                AND t1.role_id = #{roleId,jdbcType=INTEGER}
+            </if>
+            <if test='funcId != null'>
+                AND t1.func_id = #{funcId,jdbcType=INTEGER}
+            </if>
+    </select>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.RoleFuncRights">
+        SELECT 
+            t1.role_id,t2.role_name,t2.role_type,t1.func_id,t3.func_name,t3.parent_id,
+            t1.sub_full_flag,t1.operator_name,t1.delete_flag,t1.create_time,
+            t1.update_time
+        FROM
+            exa_role_func_rights t1
+        INNER JOIN
+            exa_roles t2
+        ON
+            t1.role_id = t2.role_id
+        INNER JOIN
+            exa_functions t3
+        ON
+            t1.func_id = t3.func_id
+        WHERE
+            t1.role_id = #{roleId} AND
+            t1.func_id = #{funcId}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.RoleFuncRights">
+        SELECT 
+            t1.role_id,t2.role_name,t2.role_type,t1.func_id,t3.func_name,t3.parent_id,
+            t1.sub_full_flag,t1.operator_name,t1.delete_flag,t1.create_time,
+            t1.update_time
+        FROM
+            exa_role_func_rights t1
+        INNER JOIN
+            exa_roles t2
+        ON
+            t1.role_id = t2.role_id
+        INNER JOIN
+            exa_functions t3
+        ON
+            t1.func_id = t3.func_id
+        WHERE
+            1 = 1
+            <if test='roleId != null'>
+                AND t1.role_id = #{roleId,jdbcType=INTEGER}
+            </if>
+            <if test='funcId != null'>
+                AND t1.func_id = #{funcId,jdbcType=INTEGER}
+            </if>
+        <if test='rows != null'>
+            <choose>
+                <when test='offset != null'>
+                    LIMIT #{offset,jdbcType=INTEGER},#{rows,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    LIMIT #{rows,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <select id="selectAllItems" resultType="com.abc.example.entity.RoleFuncRights">
+        SELECT 
+            t1.role_id,t2.role_name,t2.role_type,t1.func_id,t3.func_name,t3.parent_id,
+            t1.sub_full_flag,t1.operator_name,t1.delete_flag,t1.create_time,
+            t1.update_time
+        FROM
+            exa_role_func_rights t1
+        INNER JOIN
+            exa_roles t2
+        ON
+            t1.role_id = t2.role_id
+        INNER JOIN
+            exa_functions t3
+        ON
+            t1.func_id = t3.func_id
+    </select>
+</mapper>
