@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 //import org.springframework.mock.web.MockHttpServletResponse;
-//import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageInfo;
+import com.abc.example.common.constants.Constants;
 import com.abc.example.dao.UserDao;
 import com.abc.example.entity.User;
 import com.abc.example.entity.UserDr;
@@ -40,19 +40,13 @@ public class UserManServiceTest{
 	
 //	@Autowired
 //	private MockHttpServletResponse response;
-//	
-//	@Autowired
-//	private MockHttpSession session;
 	
 	// 账户缓存服务类对象
 	@Autowired
 	private AccountCacheService accountCacheService;
 	
-	// 全局配置服务类对象
-	@Autowired
-	private GlobalConfigService gcs;
-	
 	// 单元测试服务类对象
+	@Autowired
 	private UnitTestService unitTestService;
 	
 	// 用户对象数据访问类对象
@@ -77,18 +71,14 @@ public class UserManServiceTest{
 	public void init() {
 		// 获取账号ID
 		String accountId = accountCacheService.getId(request);
-		accountCacheService.setAttribute(accountId,"username","test");
-		accountCacheService.setAttribute(accountId,"userType",1);
+		accountCacheService.setAttribute(accountId,Constants.USER_NAME,"test");
+		accountCacheService.setAttribute(accountId,Constants.USER_TYPE,2);
 		Map<String,UserDr> drMap = new HashMap<String,UserDr>();
 		UserDr userDr = new UserDr();
 		userDr.setFieldId(1);
 		userDr.setDrType((byte)3);
-		userDr.setFieldName("org_id");
 		drMap.put("orgId", userDr);
-		accountCacheService.setAttribute(accountId,"drMap",drMap);	
-		
-		// 设置单元测试服务类对象
-		unitTestService = (UnitTestService)gcs.getDataServiceObject("UnitTestService");
+		accountCacheService.setAttribute(accountId,Constants.DR_MAP,drMap);			
 	}
 	
 	/**

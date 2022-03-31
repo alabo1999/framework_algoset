@@ -98,7 +98,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		
 		// 获取全局记录ID
 		TableCodeConfigService tccs = (TableCodeConfigService)gcs.getDataServiceObject("TableCodeConfigService");
-		Long globalRecId = tccs.getTableRecId("g60_users");
+		Long globalRecId = tccs.getTableRecId("exa_users");
 		Long userId = globalRecId;
 		
 		// 获取操作人账号
@@ -281,7 +281,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		String newPassword = (String)params.get("password");
 		// 获取salt
 		LocalDateTime date = LocalDateTime.now();		
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String salt = date.format(dateTimeFormatter);					
 		//加盐md5
 		String encryptPasswd = Md5Util.plaintPasswdToDbPasswd(newPassword, salt,Constants.TOKEN_KEY);		
@@ -352,7 +352,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		
 		// 设置salt
 		LocalDateTime date = LocalDateTime.now();		
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		String salt = date.format(dateTimeFormatter);					
 		// 生成密码，在密文基础上加盐
 		String encryptNewPasswd = Md5Util.apiPasswdToDBPasswd(newPasswd, salt,Constants.TOKEN_KEY);		
@@ -556,7 +556,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		}	
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotUserFuncRigthsE, userId, null, EDataOperationType.dotUpdateE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, userId, null, EDataOperationType.dotUpdateE);
 	}
 
 	/**
@@ -949,7 +949,6 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			newItem = new UserDr();
 			newItem.setFieldId(item.getFieldId());
 			newItem.setUserId(userId);
-			newItem.setFieldName(item.getFieldName());
 			newItem.setDrType(item.getDrType());
 			newItem.setOperatorName(operatorName);
 			// 新增用户数据权限记录

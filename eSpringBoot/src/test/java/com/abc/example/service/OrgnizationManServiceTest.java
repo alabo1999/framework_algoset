@@ -1,6 +1,6 @@
 package com.abc.example.service;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,56 +11,52 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-//import org.springframework.mock.web.MockHttpServletResponse;
-//import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageInfo;
 import com.abc.example.common.constants.Constants;
-import com.abc.example.dao.RoleFuncRightsDao;
-import com.abc.example.entity.RoleFuncRights;
+import com.abc.example.dao.OrgnizationDao;
+import com.abc.example.entity.Orgnization;
 import com.abc.example.entity.UserDr;
 
 /**
- * @className	: RoleFuncRightsManServiceTest
- * @description	: 角色和功能权限关系对象管理服务测试类
+ * @className	: OrgnizationManServiceTest
+ * @description	: 组织机构对象管理服务测试类
  * @summary		: 
  * @history		:
  * ------------------------------------------------------------------------------
  * date			version		modifier		remarks
  * ------------------------------------------------------------------------------
- * 2021/01/20	1.0.0		sheng.zheng		初版
+ * 2022/02/14	1.0.0		sheng.zheng		初版
  *
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-public class RoleFuncRightsManServiceTest{
+public class OrgnizationManServiceTest{
 	@Autowired
 	private MockHttpServletRequest request;
 	
-//	@Autowired
-//	private MockHttpServletResponse response;
-//	
-//	@Autowired
-//	private MockHttpSession session;
+	@Autowired
+	private MockHttpServletResponse response;
 	
 	// 账户缓存服务类对象
 	@Autowired
-	private AccountCacheService accountCacheService;
-		
+	private AccountCacheService accountCacheService;	
+	
 	// 单元测试服务类对象
 	@Autowired
 	private UnitTestService unitTestService;
 	
-	// 角色和功能权限关系对象数据访问类对象
+	// 组织机构对象数据访问类对象
 	@Autowired
-	private RoleFuncRightsDao roleFuncRightsDao;
+	private OrgnizationDao orgnizationDao;
 	
-	// 角色和功能权限关系对象管理服务类对象
+	// 组织机构对象管理服务类对象
 	@Autowired
-	private RoleFuncRightsManService roleFuncRightsManService;
+	private OrgnizationManService orgnizationManService;
 	
 	/**
 	 * @methodName	: init
@@ -69,7 +65,7 @@ public class RoleFuncRightsManServiceTest{
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 * 2022/02/14	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Before
@@ -77,77 +73,47 @@ public class RoleFuncRightsManServiceTest{
 		// 获取账号ID
 		String accountId = accountCacheService.getId(request);
 		accountCacheService.setAttribute(accountId,Constants.USER_NAME,"test");
-		accountCacheService.setAttribute(accountId,Constants.USER_TYPE,1);
+		accountCacheService.setAttribute(accountId,Constants.USER_TYPE,2);
 		Map<String,UserDr> drMap = new HashMap<String,UserDr>();
 		UserDr userDr = new UserDr();
 		userDr.setFieldId(1);
 		userDr.setDrType((byte)3);
 		drMap.put("orgId", userDr);
-		accountCacheService.setAttribute(accountId,Constants.DR_MAP,drMap);			
+		accountCacheService.setAttribute(accountId,"drMap",drMap);		
 	}
 	
 	/**
 	 * @methodName	: addItemTest
-	 * @description	: 新增一个角色和功能权限关系对象
+	 * @description	: 新增一个组织机构对象
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 * 2022/02/14	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
 	@Ignore
 	@Rollback(value=true)
+	// @Rollback(value=false)
 	public void addItemTest() {
 		// 构造数据
-		RoleFuncRights item = new RoleFuncRights();
+		Orgnization item = new Orgnization();
 		unitTestService.setItem(item);
 		System.out.println(item);
 		
 		// 调用服务类方法
-		roleFuncRightsManService.addItem(request,item);
-	}
-	
-	/**
-	 * @methodName	: addItemsTest
-	 * @description	: 新增一批角色和功能权限关系对象
-	 * @history		:
-	 * ------------------------------------------------------------------------------
-	 * date			version		modifier		remarks
-	 * ------------------------------------------------------------------------------
-	 * 2021/01/21	1.0.0		sheng.zheng		初版
-	 *
-	 */
-	@Test
-	@Ignore
-	@Rollback(value=true)
-	public void addItemsTest() {
-		// 构造数据
-		List<RoleFuncRights> itemList = new ArrayList<RoleFuncRights>();
-		
-		RoleFuncRights item = null;
-		// 构造n条数据
-		int n = 5;
-		for (int i = 0; i < n; i++) {
-			item = new RoleFuncRights();
-			unitTestService.setItem(item);
-			itemList.add(item);
-		}
-		System.out.println(itemList);
-		
-		// 调用服务类方法
-		roleFuncRightsManService.addItems(request,itemList);
+		orgnizationManService.addItem(request,item);
 	}
 	
 	/**
 	 * @methodName	: editItemTest
-	 * @description	: 根据key修改一个角色和功能权限关系对象
+	 * @description	: 根据key修改一个组织机构对象
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/21	1.0.0		sheng.zheng		初版
+	 * 2022/02/15	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
@@ -155,30 +121,30 @@ public class RoleFuncRightsManServiceTest{
 	@Rollback(value=true)
 	public void editItemTest() {
 		// 构造数据
-		RoleFuncRights item = new RoleFuncRights();
+		Orgnization item = new Orgnization();
 		// 查询数据，最大rows条
 		int rows = 20;
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
+		List<Orgnization> itemList = orgnizationDao.selectItems(params);
 		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
+		String[] Fields = new String[] {"orgId"};
 		// 获取字段名到值的字典
 		Map<String,Object> map = unitTestService.getItemMapByFields(item,itemList,Fields);
 		System.out.println(map);
 		
 		// 调用服务类方法
-		roleFuncRightsManService.editItem(request,map);
+		orgnizationManService.editItem(request,map);
 	}
 	
 	/**
 	 * @methodName	: deleteItemTest
-	 * @description	: 根据key禁用/启用一个角色和功能权限关系对象
+	 * @description	: 根据key禁用/启用一个组织机构对象
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/22	1.0.0		sheng.zheng		初版
+	 * 2022/02/15	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
@@ -190,55 +156,25 @@ public class RoleFuncRightsManServiceTest{
 		int rows = 20;
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
+		List<Orgnization> itemList = orgnizationDao.selectItems(params);
 		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
+		String[] Fields = new String[] {"orgId"};
 		// 获取字段名到值的字典
 		Map<String,Object> map = unitTestService.getFieldMapByFields(itemList,Fields);
 		System.out.println(map);
 		
 		// 调用服务类方法
-		roleFuncRightsManService.deleteItem(request,map);
-	}
-	
-	/**
-	 * @methodName	: deleteItemsTest
-	 * @description	: 根据条件删除多个角色和功能权限关系对象
-	 * @history		:
-	 * ------------------------------------------------------------------------------
-	 * date			version		modifier		remarks
-	 * ------------------------------------------------------------------------------
-	 * 2021/01/22	1.0.0		sheng.zheng		初版
-	 *
-	 */
-	@Test
-	@Ignore
-	@Rollback(value=true)
-	public void deleteItemsTest() {
-		// 构造数据
-		// 查询数据，最大rows条
-		int rows = 20;
-		Map<String,Object> params = new HashMap<String,Object>();
-		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
-		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
-		// 获取字段名到值的字典
-		Map<String,Object> map = unitTestService.getFieldMapByFields(itemList,Fields);
-		System.out.println(map);
-		
-		// 调用服务类方法
-		roleFuncRightsManService.deleteItems(request,map);
+		orgnizationManService.deleteItem(request,map);
 	}
 	
 	/**
 	 * @methodName	: queryItemsTest
-	 * @description	: 根据条件分页查询角色和功能权限关系对象列表
+	 * @description	: 根据条件分页查询组织机构对象列表
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 * 2022/02/16	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
@@ -250,31 +186,32 @@ public class RoleFuncRightsManServiceTest{
 		int rows = 20;
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
+		List<Orgnization> itemList = orgnizationDao.selectItems(params);
 		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
+		String[] Fields = new String[] {"orgId", "parentId", "orgType", "orgCode", "orgName", "orgFullname", "leader", "address", "district", "deleteFlag"};
 		// 获取字段名到值的字典
 		Map<String,Object> map = unitTestService.getFieldMapByFields(itemList,Fields);
 		// 设置其它非对象属性参数
+		map.put("orgIdList",null);
 		map.put("pagenum",1);
 		map.put("pagesize",10);
 		
 		System.out.println(map);
 		
 		// 调用服务类方法
-		PageInfo<RoleFuncRights> pageInfo = null;
-		pageInfo = roleFuncRightsManService.queryItems(request,map);
+		PageInfo<Orgnization> pageInfo = null;
+		pageInfo = orgnizationManService.queryItems(request,map);
 		System.out.println(pageInfo.getList());
 	}
 	
 	/**
 	 * @methodName	: getItemTest
-	 * @description	: 根据key获取一个角色和功能权限关系对象
+	 * @description	: 根据key获取一个组织机构对象
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 * 2022/02/16	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
@@ -286,26 +223,26 @@ public class RoleFuncRightsManServiceTest{
 		int rows = 20;
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
+		List<Orgnization> itemList = orgnizationDao.selectItems(params);
 		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
+		String[] Fields = new String[] {"orgId"};
 		// 获取字段名到值的字典
 		Map<String,Object> map = unitTestService.getFieldMapByFields(itemList,Fields);
 		System.out.println(map);
 		
 		// 调用服务类方法
-		RoleFuncRights item = roleFuncRightsManService.getItem(request,map);
+		Orgnization item = orgnizationManService.getItem(request,map);
 		System.out.println(item);
 	}
 	
 	/**
 	 * @methodName	: getItemsTest
-	 * @description	: 根据条件查询角色和功能权限关系对象列表
+	 * @description	: 根据条件查询组织机构对象列表
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks
 	 * ------------------------------------------------------------------------------
-	 * 2021/01/21	1.0.0		sheng.zheng		初版
+	 * 2022/02/14	1.0.0		sheng.zheng		初版
 	 *
 	 */
 	@Test
@@ -317,20 +254,40 @@ public class RoleFuncRightsManServiceTest{
 		int rows = 20;
 		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("rows", rows);
-		List<RoleFuncRights> itemList = roleFuncRightsDao.selectItems(params);
+		List<Orgnization> itemList = orgnizationDao.selectItems(params);
 		// 条件字段
-		String[] Fields = new String[] {"roleId", "funcId"};
+		String[] Fields = new String[] {"orgId", "parentId", "orgType", "orgCode", "orgName", "deleteFlag"};
 		// 获取字段名到值的字典
 		Map<String,Object> map = unitTestService.getFieldMapByFields(itemList,Fields);
 		// 设置其它非对象属性参数
 		map.put("offset",0);
 		map.put("rows",20);
+		map.put("orgIdList",null);
 		
 		System.out.println(map);
 		
 		// 调用服务类方法
-		List<RoleFuncRights> itemList2 = null;
-		itemList2 = roleFuncRightsManService.getItems(request,map);
+		List<Orgnization> itemList2 = null;
+		itemList2 = orgnizationManService.getItems(request,map);
 		System.out.println(itemList2);
+	}
+	
+	/**
+	 * @methodName	: exportExcelFileTest
+	 * @description	: 导出组织机构对象Excel数据文件
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2022/02/14	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Test
+	@Ignore
+	@Rollback(value=true)
+	public void exportExcelFileTest() {
+		Map<String,Object> params = new HashMap<String,Object>();
+		// 调用服务类方法
+		orgnizationManService.exportExcelFile(request,response,params);
 	}
 }

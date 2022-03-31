@@ -13,12 +13,13 @@ package com.abc.example.enumeration;
  */
 public enum ECacheObjectType {
 	cotUserE (0),				// 用户
-	cotUserFuncRigthsE (1),	// 用户功能操作权限
+	cotUserRoleE(1),			// 用户角色关系对象
 	cotUserDRE (2),			// 用户数据权限
-	cotFunctionE(3),			// 功能操作对象数据
-	cotUserRoleE(4),			// 用户角色关系对象数据
-	cotRoleFuncRightsE(5),		// 角色功能关系对象数据
+	cotFunctionE(3),			// 功能操作对象
+	cotRoleFunctionE(5),		// 角色功能关系对象
 	cotRoleE(6),				// 角色对象数据
+	cotSysParameterE(7),		// 系统参数对象
+	cotOrgnizationE(8),		// 组织对象
 	
 	;	//结束定义
 	

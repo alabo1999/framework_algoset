@@ -231,7 +231,7 @@ public class ObjListUtil {
      * 					: 如为null,则表示T为基本数据类型。
      * @param newList	: 新列表，要求键值无重复
      * @param oldList	: 旧列表，要求键值无重复
-     * @return
+     * @return			: 列表元素相同返回true，否则为false
      * @history		:
      * ------------------------------------------------------------------------------
      * date			version		modifier		remarks                   

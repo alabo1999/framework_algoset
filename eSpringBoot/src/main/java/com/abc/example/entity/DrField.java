@@ -26,6 +26,10 @@ public class DrField {
 	@Column(name = "field_name")
 	private String fieldName = "";
 
+	// 字段描述
+	@Column(name = "field_desc")
+	private String fieldDesc = "";
+	
 	// 属性名称
 	@Column(name = "prop_name")
 	private String propName = "";	

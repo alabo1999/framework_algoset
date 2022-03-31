@@ -1,16 +1,3 @@
-/**
- * @fileName		: UniveralExceptionHandler.java
- * @packageName 	: com.abc.example.exception
- * @moduleName		: 公共模块 
- * @description	: 通用异常处理类
- * @summary		:
- * @history		:
- * ------------------------------------------------------------------------------
- * date			version		modifier		remarks                   
- * ------------------------------------------------------------------------------
- * 2021/01/01	1.0.0		sheng.zheng		初版
- *
- */
 package com.abc.example.exception;
 
 import java.util.HashMap;

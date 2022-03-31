@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class BatchProcessTest {
 	MockHttpServletRequest request;
 	
 	@Test
+	@Ignore
 	// 可变步长的批量处理算法测试
 	public void varStepBatchProcessTest() {
 		

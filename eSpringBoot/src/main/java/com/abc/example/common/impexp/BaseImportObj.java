@@ -64,9 +64,9 @@ public class BaseImportObj<T>{
     protected Integer columnNoStyle = 0;
     
     // 日期格式，用于日期格式转换
-    protected String dateFormat = "yyyy-MM-dd hh:mm:ss";
+    protected String dateFormat = "yyyy-MM-dd HH:mm:ss";
     protected String formatDatePart = "yyyy-MM-dd";
-    protected String formatTimePart = "hh:mm:ss";
+    protected String formatTimePart = "HH:mm:ss";
     
     // 为updateItems方法调用，暂存的对象
     protected Object[] methodObjs;
@@ -765,7 +765,22 @@ public class BaseImportObj<T>{
         addErrorList(errorList);		
 	}  
 	
-	public String updateItems(Object request,Exception e,String item) {
+	/**
+	 * 
+	 * @methodName		: updateItems
+	 * @description	: 根据特征字段修改对象的方法
+	 * @param request	: request对象
+	 * @param e			: Exception类型对象
+	 * @param item		: 数据行对象
+	 * @return			: 异常提示字符串，空串表示无异常
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/03/12	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public String updateItems(Object request,Exception e,Object item) {
 		// ,Method updateItem
 		String errInfo = "";
 		if (e instanceof DuplicateKeyException) {
@@ -782,8 +797,7 @@ public class BaseImportObj<T>{
 			// 如果为其它异常
 			errInfo = "异常数据行，row : " + obj2RowNoMap.get(item);
 		}
-		return errInfo;
-		
+		return errInfo;		
 	}	
 	
 	/**

@@ -81,7 +81,7 @@ public class MethodLogAspect {
     /**
      * 
      * @methodName		: afterReturning
-     * @description	: 后置增强，打印响应参数
+     * @description	: 最终增强，打印响应参数
      * @param result	: response对象
      * @history		:
      * ------------------------------------------------------------------------------

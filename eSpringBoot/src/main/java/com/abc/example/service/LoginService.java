@@ -76,7 +76,7 @@ public interface LoginService {
 		
 		// 获取当前时间字符串
 		Date date = new Date();		
-		SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat dateFormat= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String sTimeStr = dateFormat.format(date);
 		
 		// 产生md5串，作为该用户的token

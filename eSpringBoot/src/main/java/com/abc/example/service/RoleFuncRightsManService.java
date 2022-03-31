@@ -163,4 +163,43 @@ public interface RoleFuncRightsManService {
 	 */
 	public List<RoleFuncRights> getItems(HttpServletRequest request,
 			 Map<String, Object> params);
+	
+	/**
+	 * @methodName		: getTree
+	 * @description		: 根据角色获取功能树
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"roleId"	: 0,	// 角色ID，必选
+	 * 	}
+	 * @return			: 功能树字符串，形式如下：
+	 * 	{
+	 * 		"funcTree"	: "",		// 功能树JSON格式字符串
+	 * 	}
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 *
+	 */	
+	public Map<String, Object> getTree(HttpServletRequest request,Map<String, Object> params);
+	
+	/**
+	 * @methodName		: setTree
+	 * @description		: 设置指定角色的功能树
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"roleId"	: 0,	// 角色ID，必选
+	 * 		"funcTree"	: "",	// 功能树JSON格式字符串
+	 * 	}
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 *
+	 */	
+	public void setTree(HttpServletRequest request,Map<String, Object> params);
 }

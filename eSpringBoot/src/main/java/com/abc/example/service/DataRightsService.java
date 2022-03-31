@@ -121,6 +121,22 @@ public interface DataRightsService {
 	
 	/**
 	 * 
+	 * @methodName		: getUserDr
+	 * @description	: 根据用户ID和权限字段名，获取用户数据权限对象
+	 * @param request	: request对象
+	 * @param drPropName	: 权限字段名
+	 * @return			: UserDr对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/03/10	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public UserDr getUserDr(HttpServletRequest request,String drPropName);		
+	
+	/**
+	 * 
 	 * @methodName		: setUserDrs
 	 * @description	: 设置用户数据权限到账户缓存中
 	 * @param request	: request对象

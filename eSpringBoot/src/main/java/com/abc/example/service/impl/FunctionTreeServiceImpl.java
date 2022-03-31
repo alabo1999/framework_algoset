@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.abc.example.dao.FunctionDao;
 import com.abc.example.entity.Function;
+import com.abc.example.service.BaseCommonService;
 import com.abc.example.service.FunctionTreeService;
 import com.abc.example.common.tree.TreeNode;
 import com.abc.example.common.utils.LogUtil;
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class FunctionTreeServiceImpl implements FunctionTreeService {
+public class FunctionTreeServiceImpl extends BaseCommonService implements FunctionTreeService {
 	
 	// functions表数据访问对象
 	@Autowired
@@ -97,7 +98,6 @@ public class FunctionTreeServiceImpl implements FunctionTreeService {
 	public TreeNode<Function> getFunctionTree(){
 		return functionTree;
 	}	
-
 	
 	/**
 	 * 
@@ -127,4 +127,186 @@ public class FunctionTreeServiceImpl implements FunctionTreeService {
 		// 根节点总是包含的
 		node.setIsIncluded(1);		
 	}	
+	
+	/**
+	 * 
+	 * @methodName		: getItemByKey
+	 * @description	: 根据key获取对象
+	 * @param funcId	: 功能ID
+	 * @param refresh	: true表示查询数据库强制刷新,false为从内存中取值
+	 * @return			: Function对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public Function getItemByKey(Integer funcId,boolean refresh) {
+		Function item = null;
+		if (refresh == true) {
+			procNoItemData(funcId,null);
+		}
+		item = getItem(funcId,null);
+		return item;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: removeItemByKey
+	 * @description	: 移除指定功能ID的功能项
+	 * @param funcId	: 功能ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void removeItemByKey(Integer funcId) {
+		TreeNode<Function> node = null;
+		node = functionTree.lookUpSubNode(funcId);
+		if (node != null) {
+			TreeNode<Function> parentNode = null;
+			parentNode = node.getParent();
+			if (parentNode != null) {
+				parentNode.removeChildNode(node);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @methodName		: getItem
+	 * @description	: 根据对象key和组key，获取对象，子类需重载
+	 * @param <T>		: T类型对象
+	 * @param itemKey	: 对象key值
+	 * @param classKey	: 对象组key值
+	 * @return			: 泛型T类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Function getItem(Object itemKey,Object classKey) {
+		Function item = null;
+		TreeNode<Function> node = null;
+		Integer funcId = (Integer)itemKey;
+		node = functionTree.lookUpSubNode(funcId);
+		if (node != null) {
+			item = node.getNodeData();
+		}
+		return item;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: fetchItem
+	 * @description	: 从数据库中查询一个对象
+	 * @param <T>		: 泛型方法
+	 * @param itemKey	: 对象key
+	 * @param classKey	: 对象组key
+	 * @return			: 泛型T类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Function fetchItem(Object itemKey,Object classKey) {
+		return functionDao.selectItemByKey((Integer)itemKey);
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: setItem
+	 * @description	: 将一个对象加入管理集合中
+	 * @param <T>		: 泛型方法
+	 * @param itemKey	: 对象key
+	 * @param classKey	: 对象组key
+	 * @param item		: 泛型T类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected <T> void setItem(Object itemKey,Object classKey,T item) {
+		Function newItem = (Function)item;
+		if (newItem.getDeleteFlag() != 0) {
+			return;
+		}
+		
+		synchronized(this) {
+			// 更新功能树		
+			Integer funcId = newItem.getFuncId();
+			Integer parentId = newItem.getParentId();
+			TreeNode<Function> node = null;
+			TreeNode<Function> parentNode = null;
+			// 获取当前节点
+			node = functionTree.lookUpSubNode(funcId);
+			if (node != null) {
+				// 如果当前节点存在，表示修改
+				node.setNodeData(newItem);
+				
+				parentNode = node.getParent();
+				if (parentNode != null) {
+					if (parentNode.getNodeData().getFuncId() != parentId) {
+						// 如果父节点ID有变化
+						parentNode.removeChildNode(node);
+						// 获取父节点
+						parentNode = functionTree.lookUpSubNode(parentId);
+						if (parentNode != null) {
+							parentNode.addChildNode(node);
+						}
+					}
+				}
+			}else {
+				// 如果当前节点不存在，表示新增
+				// 获取父节点
+				parentNode = functionTree.lookUpSubNode(parentId);
+				if (parentNode != null) {
+					// 如果父节点存在
+					node = new TreeNode<Function>();
+					node.setNodeData(newItem);
+					parentNode.addChildNode(node);
+				}				
+			}
+		}		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: logInfo
+	 * @description	: 写日志
+	 * @param methodName: 方法名
+	 * @param param		: 参数值
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/08/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected void logInfo(String methodName,String param) {
+		switch(methodName) {
+		case "loadItem":
+			log.info("Failed to query item data with funcId = " + param);
+			break;
+		default:
+			break;
+		}
+	}		
 }

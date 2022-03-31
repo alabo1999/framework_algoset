@@ -25,11 +25,7 @@ public class UserDr {
 	// 字段ID
 	@Column(name = "field_id")
 	private Integer fieldId = 0;
-	
-	// 字段名
-	@Column(name = "field_name")
-	private String fieldName = "";
-	
+		
 	// 数据权限类型，1-默认规则、2-自定义、3-全部
 	@Column(name = "dr_type")
 	private Byte drType = 1;

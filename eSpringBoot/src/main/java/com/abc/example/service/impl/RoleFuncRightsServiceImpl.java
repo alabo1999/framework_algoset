@@ -304,4 +304,27 @@ public class RoleFuncRightsServiceImpl implements RoleFuncRightsService{
 			}
 		}				
 	}	
+	
+	/**
+	 * 
+	 * @methodName		: getRoleIdTree
+	 * @description	: 获取指定角色ID的权限
+	 * @param roleIdList	: 角色ID
+	 * @return			: 角色ID对应的功能树
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public TreeNode<Function> getRoleIdTree(Integer roleId){
+		// 组合ID的功能树
+		TreeNode<Function> roleIdTree = null;
+		if (roleIdRightsMap.containsKey(roleId)) {
+			roleIdTree = roleIdRightsMap.get(roleId); 
+		}
+		return roleIdTree;
+	}
 }

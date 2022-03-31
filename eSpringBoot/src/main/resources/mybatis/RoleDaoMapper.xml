@@ -34,7 +34,7 @@
         </set>
         WHERE
             role_id = #{roleId}
-    </update>
+    </update>      
     
     <delete id="deleteItemByKey">
         DELETE FROM 

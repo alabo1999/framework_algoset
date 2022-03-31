@@ -1,13 +1,17 @@
 package com.abc.example.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageInfo;
+import com.abc.example.common.tree.TreeNode;
 import com.abc.example.common.utils.LogUtil;
 import com.abc.example.dao.RoleFuncRightsDao;
+import com.abc.example.entity.Function;
 import com.abc.example.entity.RoleFuncRights;
 import com.abc.example.enumeration.ECacheObjectType;
 import com.abc.example.enumeration.EDataOperationType;
@@ -16,7 +20,12 @@ import com.abc.example.exception.BaseException;
 import com.abc.example.exception.ExceptionCodes;
 import com.abc.example.service.BaseService;
 import com.abc.example.service.CacheDataConsistencyService;
+import com.abc.example.service.FunctionTreeService;
+import com.abc.example.service.GlobalConfigService;
 import com.abc.example.service.RoleFuncRightsManService;
+import com.abc.example.service.RoleFuncRightsService;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @className	: RoleFuncRightsManServiceImpl
@@ -43,9 +52,9 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 //	@Autowired
 //	private DataRightsService drs;
 //	
-//	// 公共配置数据服务类对象
-//	@Autowired
-//	private GlobalConfigService gcs;
+	// 公共配置数据服务类对象
+	@Autowired
+	private GlobalConfigService gcs;
 	
 	/**
 	 * @methodName		: addItem
@@ -82,7 +91,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, null, item, EDataOperationType.dotAddE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, item, EDataOperationType.dotLoadE);
 		
 	}
 	
@@ -128,7 +137,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 		}
 		
 		// 缓存一致性检查
-		// cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, null, itemList, EDataOperationType.dotAddE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, null, EDataOperationType.dotLoadE);
 		
 	}
 	
@@ -178,8 +187,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 		}
 		
 		// 缓存一致性检查
-		// RoleFuncRights newItem = roleFuncRightsDao.selectItemByKey(roleId,funcId);
-		// cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, oldItem, newItem, EDataOperationType.dotUpdateE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, null, EDataOperationType.dotLoadE);
 		
 	}
 	
@@ -241,12 +249,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 		}
 		
 		// 缓存一致性检查
-		// if (deleteFlag == EDeleteFlag.dfDeletedE.getCode()){
-		// 	cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, oldItem, null, EDataOperationType.dotRemoveE);
-		// }else{
-		// 	oldItem.setDeleteFlag(deleteFlag.byteValue());
-		// 	cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, null, oldItem, EDataOperationType.dotAddE);
-		// }
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, null, EDataOperationType.dotLoadE);
 		
 	}
 	
@@ -291,7 +294,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 		}
 		
 		// 缓存一致性检查
-		// cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFuncRightsE, oldItemList, null, EDataOperationType.dotRemoveE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, null, EDataOperationType.dotLoadE);
 		
 	}
 	
@@ -404,6 +407,167 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 	}
 	
 	/**
+	 * @methodName		: getTree
+	 * @description		: 根据角色获取功能树
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"roleId"	: 0,	// 角色ID，必选
+	 * 	}
+	 * @return			: 功能树字符串，形式如下：
+	 * 	{
+	 * 		"funcTree"	: "",		// 功能树JSON格式字符串
+	 * 	}
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public Map<String, Object> getTree(HttpServletRequest request,Map<String, Object> params){
+		// 输入参数校验
+		checkValidForParams(request, "getTree", params);
+		
+		Integer roleId = (Integer)params.get("roleId");
+		RoleFuncRightsService rfrs = (RoleFuncRightsService)gcs.getDataServiceObject("RoleFuncRightsService");
+		TreeNode<Function> roleFuncTree = rfrs.getRoleIdTree(roleId);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("funcTree", roleFuncTree.toString());
+		return map;
+	}
+	
+	/**
+	 * @methodName		: setTree
+	 * @description		: 设置指定角色的功能树
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"roleId"	: 0,	// 角色ID，必选
+	 * 		"funcTree"	: "",	// 功能树JSON格式字符串
+	 * 	}
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/20	1.0.0		sheng.zheng		初版
+	 *
+	 */	
+	@Override
+	public void setTree(HttpServletRequest request,Map<String, Object> params) {
+		// 输入参数校验
+		checkValidForParams(request, "setTree", params);
+		
+		Integer roleId = (Integer)params.get("roleId");
+		String funcTreeStr = (String)params.get("funcTree");
+		JSONObject jofuncTree = JSONObject.parseObject(funcTreeStr);
+		// 先获取完整的功能树
+		FunctionTreeService fts = (FunctionTreeService)gcs.getDataServiceObject("FunctionTreeService");		
+		TreeNode<Function> roleFuncTree = fts.getFunctionTree().clone();	
+		// 将JSON树的isIncluded属性设置到功能树中
+		setRoleTree(jofuncTree,roleFuncTree);
+		// 获取角色功能树列表
+		List<RoleFuncRights> roleFuncList = new ArrayList<RoleFuncRights>();
+		getRoleFuncList(roleFuncTree,roleFuncList,roleId);
+		// 获取操作人账号
+		String operatorName = getUserName(request);
+		for(RoleFuncRights item : roleFuncList) {
+			item.setOperatorName(operatorName);
+		}
+		// 先删除roleId的角色功能关系记录
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("roleId", roleId);
+		roleFuncRightsDao.deleteItems(map);
+		// 再批量insert
+		roleFuncRightsDao.insertItems(roleFuncList);
+		
+		// 缓存一致性检查
+		cdcs.cacheObjectChanged(ECacheObjectType.cotRoleFunctionE, null, null, EDataOperationType.dotLoadE);		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: setRoleTree
+	 * @description	: 将JSON树的isIncluded属性设置到功能树中
+	 * @param jofuncTree: JSON树
+	 * @param roleFuncTree: 功能树
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/21	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	private void setRoleTree(JSONObject jofuncTree,TreeNode<Function> roleFuncTree) {
+		Integer isIncluded = jofuncTree.getInteger("isIncluded");
+		JSONObject nodeData = jofuncTree.getJSONObject("nodeData");
+		JSONArray children = jofuncTree.getJSONArray("children");
+		// 获取节点数据
+		Integer funcId = nodeData.getInteger("funcId");
+		TreeNode<Function> node = null;
+		node = roleFuncTree.lookUpSubNode(funcId);
+		if (node != null) {
+			node.setIsIncluded(isIncluded);
+		}else {
+			return;
+		}
+		// 处理子节点
+		for (int i = 0; i < children.size(); i++) {
+			JSONObject subItem = children.getJSONObject(i);
+			setRoleTree(subItem,node);
+		}
+	}
+	
+	/**
+	 * 
+	 * @methodName		: getRoleFuncList
+	 * @description	: 获取角色功能关系列表
+	 * @param roleFuncTree: 角色功能树
+	 * @param roleFuncList: RoleFuncRights对象列表
+	 * @param roleId	: 角色ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/21	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	private void getRoleFuncList(TreeNode<Function> roleFuncTree,
+			List<RoleFuncRights> roleFuncList,Integer roleId){
+
+		RoleFuncRights roleFunc = null;
+		Function funcItem = null;
+		Integer funcId = 0;
+		boolean bAllChildren = false;
+		if (roleFuncTree.getNodeData().getFuncId() != 0 && roleFuncTree.getIsIncluded() == 1) {
+			// 如果当前节点不为根节点，且包含
+			funcItem = roleFuncTree.getNodeData();
+			funcId = funcItem.getFuncId();
+			// 是否包含全部子节点
+			bAllChildren = roleFuncTree.isAllChildrenIncluded();
+			// 构造角色功能关系对象
+			roleFunc = new RoleFuncRights();
+			roleFunc.setRoleId(roleId);
+			roleFunc.setFuncId(funcId);
+			if (bAllChildren) {
+				roleFunc.setSubFullFlag((byte)1);
+			}else {
+				roleFunc.setSubFullFlag((byte)0);
+			}
+			roleFuncList.add(roleFunc);						
+		}else {
+			return;
+		}
+		
+		// 处理子节点
+		for (int i = 0; i < roleFuncTree.getChildren().size(); i++) {
+			TreeNode<Function> childNode = roleFuncTree.getChildren().get(i);
+			getRoleFuncList(childNode,roleFuncList,roleId);
+		}		
+	}
+	
+	/**
 	 * @methodName			: checkValidForParams
 	 * @description			: 输入参数校验
 	 * @param request		: request对象
@@ -467,6 +631,22 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 			checkKeyFields(map,new String[] {"roleId", "funcId"});
 		}
 		break;
+		case "getTree":
+		{
+			Map<String,Object> map = (Map<String,Object>)params;
+			
+			// 检查项: roleId
+			checkKeyFields(map,new String[] {"roleId"});
+		}
+			break;
+		case "setTree":
+		{
+			Map<String,Object> map = (Map<String,Object>)params;
+			
+			// 检查项: roleId,funcTree
+			checkKeyFields(map,new String[] {"roleId", "funcTree"});
+		}
+			break;
 		default:
 			break;
 		}

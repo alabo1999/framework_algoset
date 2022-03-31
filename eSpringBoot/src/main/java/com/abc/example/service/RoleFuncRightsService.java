@@ -35,7 +35,7 @@ public interface RoleFuncRightsService {
 	/**
 	 * 
 	 * @methodName		: getRoleRightsTree
-	 * @description	: 获取指定角色ID的权限
+	 * @description	: 获取指定角色ID列表的权限
 	 * @param roleIdList	: 角色ID列表
 	 * @return			: 权限对应的功能树
 	 * @history		:
@@ -46,6 +46,21 @@ public interface RoleFuncRightsService {
 	 *
 	 */
 	public TreeNode<Function> getRoleRightsTree(List<Integer> roleIdList);
+	
+	/**
+	 * 
+	 * @methodName		: getRoleIdTree
+	 * @description	: 获取指定角色ID的权限
+	 * @param roleIdList	: 角色ID
+	 * @return			: 角色ID对应的功能树
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public TreeNode<Function> getRoleIdTree(Integer roleId);	
 	
 	/**
 	 * 

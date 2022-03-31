@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.abc.example.dao.OrgnizationDao">
+
+    <insert id="insertItem" parameterType="com.abc.example.entity.Orgnization">
+        INSERT INTO exa_orgnizations(
+            org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
+            phone_number,email,address,zipcode,district,district_level,parent_id,lon,
+            lat,remark,operator_name
+        )
+        VALUES(
+            #{orgId},#{orgCode},#{orgName},#{orgFullname},#{orgType},#{orgCategory},
+            #{leader},#{contacts},#{phoneNumber},#{email},#{address},#{zipcode},
+            #{district},#{districtLevel},#{parentId},#{lon},#{lat},#{remark},
+            #{operatorName}
+        )
+    </insert>
+    
+    <update id="updateItemByKey" parameterType="java.util.Map">
+        UPDATE
+            exa_orgnizations
+        <set>
+            <if test='orgCode != null'>
+                org_code = #{orgCode,jdbcType=VARCHAR},
+            </if>
+            <if test='orgName != null'>
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test='orgFullname != null'>
+                org_fullname = #{orgFullname,jdbcType=VARCHAR},
+            </if>
+            <if test='orgType != null'>
+                org_type = #{orgType,jdbcType=TINYINT},
+            </if>
+            <if test='orgCategory != null'>
+                org_category = #{orgCategory,jdbcType=TINYINT},
+            </if>
+            <if test='leader != null'>
+                leader = #{leader,jdbcType=VARCHAR},
+            </if>
+            <if test='contacts != null'>
+                contacts = #{contacts,jdbcType=VARCHAR},
+            </if>
+            <if test='phoneNumber != null'>
+                phone_number = #{phoneNumber,jdbcType=VARCHAR},
+            </if>
+            <if test='email != null'>
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test='address != null'>
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test='zipcode != null'>
+                zipcode = #{zipcode,jdbcType=VARCHAR},
+            </if>
+            <if test='district != null'>
+                district = #{district,jdbcType=VARCHAR},
+            </if>
+            <if test='districtLevel != null'>
+                district_level = #{districtLevel,jdbcType=TINYINT},
+            </if>
+            <if test='parentId != null'>
+                parent_id = #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test='lon != null'>
+                lon = #{lon,jdbcType=DOUBLE},
+            </if>
+            <if test='lat != null'>
+                lat = #{lat,jdbcType=DOUBLE},
+            </if>
+            <if test='remark != null'>
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test='operatorName != null'>
+                operator_name = #{operatorName,jdbcType=VARCHAR},
+            </if>
+            <if test='deleteFlag != null'>
+                delete_flag = #{deleteFlag,jdbcType=TINYINT},
+            </if>
+        </set>
+        WHERE
+            org_id = #{orgId}
+    </update>
+    
+    <delete id="deleteItemByKey">
+        DELETE FROM 
+            exa_orgnizations
+        WHERE
+            org_id = #{orgId}
+    </delete>
+    
+    <select id="selectItemsByCondition" resultType="com.abc.example.entity.Orgnization">
+        SELECT 
+            org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
+            phone_number,email,address,zipcode,district,district_level,parent_id,lon,
+            lat,remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_orgnizations
+        WHERE
+            1 = 1
+            <if test='orgId != null'>
+                AND org_id = #{orgId,jdbcType=INTEGER}
+            </if>
+            <if test='parentId != null'>
+                AND parent_id = #{parentId,jdbcType=INTEGER}
+            </if>
+            <if test='orgType != null'>
+                AND org_type = #{orgType,jdbcType=TINYINT}
+            </if>
+            <if test='orgCode != null'>
+                AND org_code LIKE CONCAT('%',#{orgCode,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='orgName != null'>
+                AND org_name LIKE CONCAT('%',#{orgName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='orgFullname != null'>
+                AND org_fullname LIKE CONCAT('%',#{orgFullname,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='leader != null'>
+                AND leader LIKE CONCAT('%',#{leader,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='address != null'>
+                AND address LIKE CONCAT('%',#{address,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='district != null'>
+                AND district LIKE CONCAT('%',#{district,jdbcType=VARCHAR},'%')
+            </if>
+            <if test='deleteFlag != null'>
+                AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
+            </if>
+            <if test='orgIdList != null and orgIdList.size != 0'>
+                AND org_id IN
+                <foreach collection ="orgIdList" item="orgId" index= "index" open="(" close=")" separator =",">
+                    #{orgId}
+                </foreach>
+            </if>
+    </select>
+    
+    <select id="selectItemByKey" resultType="com.abc.example.entity.Orgnization">
+        SELECT 
+            org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
+            phone_number,email,address,zipcode,district,district_level,parent_id,lon,
+            lat,remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_orgnizations
+        WHERE
+            org_id = #{orgId}
+    </select>
+    
+    <select id="selectItems" resultType="com.abc.example.entity.Orgnization">
+        SELECT 
+            org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
+            phone_number,email,address,zipcode,district,district_level,parent_id,lon,
+            lat,remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_orgnizations
+        WHERE
+            1 = 1
+            <if test='orgId != null'>
+                AND org_id = #{orgId,jdbcType=INTEGER}
+            </if>
+            <if test='parentId != null'>
+                AND parent_id = #{parentId,jdbcType=INTEGER}
+            </if>
+            <if test='orgType != null'>
+                AND org_type = #{orgType,jdbcType=TINYINT}
+            </if>
+            <if test='orgCode != null'>
+                AND org_code = #{orgCode,jdbcType=VARCHAR}
+            </if>
+            <if test='orgName != null'>
+                AND org_name = #{orgName,jdbcType=VARCHAR}
+            </if>
+            <if test='deleteFlag != null'>
+                AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
+            </if>
+            <if test='orgIdList != null and orgIdList.size != 0'>
+                AND org_id IN
+                <foreach collection ="orgIdList" item="orgId" index= "index" open="(" close=")" separator =",">
+                    #{orgId}
+                </foreach>
+            </if>
+        <if test='rows != null'>
+            <choose>
+                <when test='offset != null'>
+                    LIMIT #{offset,jdbcType=INTEGER},#{rows,jdbcType=INTEGER}
+                </when>
+                <otherwise>
+                    LIMIT #{rows,jdbcType=INTEGER}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>

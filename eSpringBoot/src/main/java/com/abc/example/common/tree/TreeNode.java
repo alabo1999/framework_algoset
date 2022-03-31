@@ -333,6 +333,36 @@ public class TreeNode<T extends ITreeNodeData> implements Serializable {
 	
 	/**
 	 * 
+	 * @methodName		: isAllChildrenIncluded
+	 * @description	: 获取子节点是否全包含信息
+	 * @return			: 包含全部子节点，则返回true，否则返回false
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public boolean isAllChildrenIncluded() {
+		// 遍历所有子节点
+		for(TreeNode<T> item : this.children) {
+			Integer subIncluded = item.getIsIncluded();
+			if (subIncluded == 0) {
+				// 存在未包含的子节点
+				return false;
+			}
+			// 子节点的子节点
+			boolean bIncluded = item.isAllChildrenIncluded();
+			if (bIncluded == false) {
+				// 存在未包含的子节点
+				return false;
+			}
+		}	
+		return true;
+	}
+	
+	/**
+	 * 
 	 * @methodName		: combineTreeNode
 	 * @description	: 将结构完全相同的节点合并到本节点中，合并后的节点的isIncluded属性位|操作
 	 * @param combineNode: 并入的节点

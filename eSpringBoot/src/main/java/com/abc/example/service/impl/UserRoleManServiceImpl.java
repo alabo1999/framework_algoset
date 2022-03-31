@@ -12,7 +12,6 @@ import com.abc.example.dao.UserRoleDao;
 import com.abc.example.entity.UserRole;
 import com.abc.example.enumeration.ECacheObjectType;
 import com.abc.example.enumeration.EDataOperationType;
-import com.abc.example.enumeration.EDeleteFlag;
 import com.abc.example.exception.BaseException;
 import com.abc.example.exception.ExceptionCodes;
 import com.abc.example.service.BaseService;
@@ -38,15 +37,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 	
 	// 缓存数据一致性服务类对象
 	@Autowired
-	private CacheDataConsistencyService cdcs;
-	
-	// 数据权限服务类对象
-//	@Autowired
-//	private DataRightsService drs;
-//	
-//	// 公共配置数据服务类对象
-//	@Autowired
-//	private GlobalConfigService gcs;
+	private CacheDataConsistencyService cdcs;	
 	
 	/**
 	 * @methodName		: addItem
@@ -128,8 +119,8 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 			throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED);
 		}
 		
-		// 缓存一致性检查
-		// cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, itemList, EDataOperationType.dotAddE);
+		// 缓存一致性检查		
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, itemList.get(0), EDataOperationType.dotAddE);
 		
 	}
 	
@@ -161,19 +152,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		if (oldItem == null) {
 			throw new BaseException(ExceptionCodes.OBJECT_DOES_NOT_EXIST);
 		}
-		
-		// 检查删除标记
-		Integer deleteFlag = (Integer)params.get("deleteFlag");
-		if (deleteFlag == null) {
-			// 默认为停用
-			deleteFlag = EDeleteFlag.dfDeletedE.getCode();
-			params.put("deleteFlag", deleteFlag);
-		}
-		if (oldItem.getDeleteFlag() == deleteFlag.byteValue()) {
-			// 不变
-			return;
-		}
-		
+				
 		// 获取操作人账号
 		String operatorName = getUserName(request);
 		// 设置信息
@@ -191,12 +170,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		}
 		
 		// 缓存一致性检查
-		// if (deleteFlag == EDeleteFlag.dfDeletedE.getCode()){
-		// 	cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItem, null, EDataOperationType.dotRemoveE);
-		// }else{
-		// 	oldItem.setDeleteFlag(deleteFlag.byteValue());
-		// 	cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, oldItem, EDataOperationType.dotAddE);
-		// }
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItem, null, EDataOperationType.dotRemoveE);
 		
 	}
 	
@@ -221,16 +195,19 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		// 输入参数校验
 		checkValidForParams(request, "deleteItems", params);
 		
+		// 查询修改前的数据
+		List<UserRole> oldItemList = userRoleDao.selectItems(params);
+		if (oldItemList.size() == 0) {
+			return;
+		}
+		
 		// 获取操作人账号
 		String operatorName = getUserName(request);
 		// 设置信息
 		params.put("operatorName", operatorName);
 		
-		// 修改数据
-		try {
-			// 查询修改前的数据
-			// List<UserRole> oldItemList = userRoleDao.selectItems(params);
-			
+		// 修改数据		
+		try {			
 			userRoleDao.deleteItems(params);
 			
 			 // 可能的数据库一致性处理
@@ -241,7 +218,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		}
 		
 		// 缓存一致性检查
-		// cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItemList, null, EDataOperationType.dotRemoveE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItemList.get(0), null, EDataOperationType.dotRemoveE);
 		
 	}
 	

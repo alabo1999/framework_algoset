@@ -5,21 +5,21 @@
 
     <insert id="insertItem" parameterType="com.abc.example.entity.UserDr">
         INSERT INTO exa_user_drs(
-            user_id,field_id,field_name,dr_type,expr,operator_name
+            user_id,field_id,dr_type,expr,operator_name
         )
         VALUES(
-            #{userId},#{fieldId},#{fieldName},#{drType},#{expr},#{operatorName}
+            #{userId},#{fieldId},#{drType},#{expr},#{operatorName}
         )
     </insert>
     
     <insert id="insertItems" parameterType="java.util.List">
         INSERT INTO exa_user_drs(
-            user_id,field_id,field_name,dr_type,expr,operator_name
+            user_id,field_id,dr_type,expr,operator_name
         )
         VALUES
         <foreach collection ="list" item="item" index= "index" separator =",">
         (
-            #{item.userId},#{item.fieldId},#{item.fieldName},#{item.drType},
+            #{item.userId},#{item.fieldId},#{item.drType},
             #{item.expr},#{item.operatorName}
         )
         </foreach>
@@ -29,9 +29,6 @@
         UPDATE
             exa_user_drs
         <set>
-            <if test='fieldName != null'>
-                field_name = #{fieldName,jdbcType=VARCHAR},
-            </if>
             <if test='drType != null'>
                 dr_type = #{drType,jdbcType=TINYINT},
             </if>
@@ -52,7 +49,7 @@
     
     <select id="selectItemByKey" resultType="com.abc.example.entity.UserDr">
         SELECT 
-            user_id,field_id,field_name,dr_type,expr,operator_name,delete_flag,
+            user_id,field_id,dr_type,expr,operator_name,delete_flag,
             create_time,update_time
         FROM
             exa_user_drs
@@ -63,7 +60,7 @@
     
     <select id="selectItems" resultType="com.abc.example.entity.UserDr">
         SELECT 
-            user_id,field_id,field_name,dr_type,expr,operator_name,delete_flag,
+            user_id,field_id,dr_type,expr,operator_name,delete_flag,
             create_time,update_time
         FROM
             exa_user_drs

@@ -12,11 +12,14 @@ package com.abc.example.enumeration;
  *
  */
 public enum EDataOperationType {
-	dotNullE (0),		//空操作
-	dotLoadE (1),		//加载操作
-	dotAddE (2),		//添加操作
-	dotRemoveE (3),	//移除操作
-	dotUpdateE (4),	//更新操作
+	dotNullE (0),			//空操作
+	dotLoadE (1),			//加载操作
+	dotAddE (2),			//添加一个对象
+	dotAddItemsE (3),		//添加多个对象
+	dotRemoveE (4),		//移除一个对象
+	dotRemoveItemsE (5),	//移除多个对象
+	dotUpdateE (6),		//更新一个对象
+	dotUpdateItemsE (7),	//更新多个对象
 	
 	;	//结束定义
 	

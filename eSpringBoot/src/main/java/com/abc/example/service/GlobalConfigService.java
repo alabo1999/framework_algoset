@@ -2,7 +2,7 @@ package com.abc.example.service;
 
 /**
  * @className		: GlobalConfigService
- * @description	: 全局变量管理类
+ * @description	: 全局配置管理类
  * @summary		:
  * @history		:
  * ------------------------------------------------------------------------------

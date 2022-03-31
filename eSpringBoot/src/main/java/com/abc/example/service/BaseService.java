@@ -169,6 +169,39 @@ public class BaseService {
 	
 	/**
 	 * 
+	 * @methodName		: checkOpKeyFields
+	 * @description	: 检查可选关键字段是否存在
+	 * @param params	: 输入参数
+	 * @param fieldNames: 关键字段名
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void checkOpKeyFields(Map<String,Object> params,String[] fieldNames) {
+		boolean bFound = false;
+		String prompt = "，缺失可选字段：";
+		for(int i = 0; i < fieldNames.length; i++) {
+			String fieldName = fieldNames[i];
+			if (params.containsKey(fieldName)) {
+				bFound = true;
+				break;
+			}
+			if (i != 0) {
+				prompt += ",";
+			}
+			prompt += fieldName;			
+		}
+		if (!bFound) {
+			throw new BaseException(ExceptionCodes.ARGUMENTS_ERROR.getCode(),
+					ExceptionCodes.ARGUMENTS_ERROR.getMessage() + prompt);			
+		}
+	}	
+	
+	/**
+	 * 
 	 * @methodName		: getUserName
 	 * @description	: 获取访问账户的用户名
 	 * @param request	: request对象

@@ -11,8 +11,9 @@ import org.springframework.stereotype.Service;
 import com.abc.example.common.utils.LogUtil;
 import com.abc.example.dao.SysParameterDao;
 import com.abc.example.entity.SysParameter;
+import com.abc.example.service.BaseCommonService;
 import com.abc.example.service.SysParameterService;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @className		: SysParameterServiceImpl
@@ -25,8 +26,9 @@ import com.abc.example.service.SysParameterService;
  * 2021/01/01	1.0.0		sheng.zheng		初版
  *
  */
+@Slf4j
 @Service
-public class SysParameterServiceImpl implements SysParameterService {
+public class SysParameterServiceImpl extends BaseCommonService implements SysParameterService {
 	// sys_parameters表数据访问对象
 	@Autowired
 	private SysParameterDao sysParameterDao;
@@ -84,9 +86,10 @@ public class SysParameterServiceImpl implements SysParameterService {
 	
 	/**
 	 * 
-	 * @methodName		: getParameterClass
+	 * @methodName		: getItemsByClass
 	 * @description	: 获取指定classKey的参数类别的子项列表
 	 * @param classKey	: 参数类别key
+	 * @param refresh	: true表示查询数据库强制刷新,false为从内存中取值
 	 * @return			: 指定classKey的参数类别的子项列表
 	 * @history		:
 	 * ------------------------------------------------------------------------------
@@ -96,25 +99,31 @@ public class SysParameterServiceImpl implements SysParameterService {
 	 *
 	 */
 	@Override
-	public List<SysParameter> getParameterClass(String classKey){
+	public List<SysParameter> getItemsByClass(String classKey,boolean refresh){
 		List<SysParameter> itemList = new ArrayList<SysParameter>();
-
-		if (classKey == null) {
-			return itemList;
+		if (refresh == true) {
+			// 如果需要刷新
+			loadGroupItems(classKey);
 		}
-						
-		// 获取classKey对应的子map，将所有子项加入列表中
+		//获取classKey对应的子map，将所有子项加入列表中
 		getClassList(itemList,classKey);
-				
+		if (itemList.size() == 0 && refresh == false) {
+			// 如果指定classKey不存在
+			if(procNoClassData(classKey)) {
+				getClassList(itemList,classKey);
+			}				
+		}
+		
 		return itemList;
 	}
 	
 	/**
 	 * 
-	 * @methodName		: getParameterItemByKey
+	 * @methodName		: getItemByKey
 	 * @description	: 根据classKey和itemKey获取参数子项
 	 * @param classKey	: 参数类别key
 	 * @param itemKey	: 子项key
+	 * @param refresh	: true表示查询数据库强制刷新,false为从内存中取值
 	 * @return			: SysParameter对象
 	 * @history		:
 	 * ------------------------------------------------------------------------------
@@ -124,20 +133,22 @@ public class SysParameterServiceImpl implements SysParameterService {
 	 *
 	 */
 	@Override
-	public SysParameter getParameterItemByKey(String classKey,String itemKey) {
+	public SysParameter getItemByKey(String classKey,String itemKey,boolean refresh) {
 		if (classKey == null || itemKey == null) {
 			return null;
 		}
 		
-		SysParameter sysParameter = null;		
-		sysParameter = getItem(itemKey,classKey);
-
-		return sysParameter;
+		SysParameter item = null;		
+		if (refresh == true) {
+			procNoItemData(itemKey,classKey);
+		}		
+		item = getItem(itemKey,classKey);
+		return item;
 	}
 	
 	/**
 	 * 
-	 * @methodName		: getParameterItemByValue
+	 * @methodName		: getItemByValue
 	 * @description	: 根据classKey和itemValue获取参数子项
 	 * @param classKey	: 参数类别key	
 	 * @param itemValue	: 子项值
@@ -150,7 +161,7 @@ public class SysParameterServiceImpl implements SysParameterService {
 	 *
 	 */
 	@Override
-	public SysParameter getParameterItemByValue(String classKey,String itemValue) {
+	public SysParameter getItemByValue(String classKey,String itemValue) {
 		if (classKey == null || itemValue == null) {
 			return null;
 		}
@@ -174,6 +185,71 @@ public class SysParameterServiceImpl implements SysParameterService {
 		
 	}	
 	
+	/**
+	 * 
+	 * @methodName		: removeItemByKey
+	 * @description	: 根据classKey和itemKey移除参数子项
+	 * @param classKey	: 参数类别key
+	 * @param itemKey	: 子项key
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/04/17	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void removeItemByKey(String classKey,String itemKey) {
+		Map<String,SysParameter> subClassMap = null;
+		synchronized(this) {
+			if (sysParameterMap.containsKey(classKey)) {
+				subClassMap = sysParameterMap.get(classKey);
+				if (subClassMap.containsKey(itemKey)) {
+					subClassMap.remove(itemKey);
+				}
+			}			
+		}
+	}
+	
+	/**
+	 * 
+	 * @methodName		: removeItemsByClass
+	 * @description	: 根据classKey移除参数类别
+	 * @param classKey	: 参数类别key
+	 * @param itemKey	: 子项key
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/04/17	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void removeItemsByClass(String classKey) {
+		synchronized(this) {
+			if (sysParameterMap.containsKey(classKey)) {
+				sysParameterMap.remove(classKey);
+			}			
+		}
+	}
+	
+	/**
+	 * 
+	 * @methodName		: hasGroupItems
+	 * @description	: 是否存在指定key的对象组，子类需重载
+	 * @param classKey	: 对象组key
+	 * @return			: 存在返回true，否则返回false
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected boolean hasGroupItems(Object classKey) {
+		return sysParameterMap.containsKey((String)classKey);
+	}	
 	
 	/**
 	 * 
@@ -190,7 +266,9 @@ public class SysParameterServiceImpl implements SysParameterService {
 	 * 2021/01/01	1.0.0		sheng.zheng		初版
 	 *
 	 */	
-	private SysParameter getItem(Object itemKey,Object classKey) {
+	@SuppressWarnings("unchecked")
+	@Override
+	protected SysParameter getItem(Object itemKey,Object classKey) {
 		SysParameter item = null;
 		if (sysParameterMap.containsKey((String)classKey)) {
 			Map<String,SysParameter> subClassMap = sysParameterMap.get((String)classKey);
@@ -199,6 +277,154 @@ public class SysParameterServiceImpl implements SysParameterService {
 			}
 		}
 		return item;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: fetchItem
+	 * @description	: 从数据库中查询一个对象
+	 * @param <T>		: 泛型方法
+	 * @param itemKey	: 对象key
+	 * @param classKey	: 对象组key
+	 * @return			: 泛型T类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected SysParameter fetchItem(Object itemKey,Object classKey) {
+		return sysParameterDao.selectItemByKey2((String)classKey, (String)itemKey);
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: fetchItems
+	 * @description	: 从数据库中查询对象列表
+	 * @param <T>		: 泛型方法
+	 * @param classKey	: 对象组key
+	 * @return			: 查询到的对象列表
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	protected List<SysParameter> fetchItems(Object classKey) {
+		List<SysParameter> itemList = sysParameterDao.selectItemsByClassKey((String)classKey);		
+		return itemList;
+
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: setItem
+	 * @description	: 将一个对象加入管理集合中
+	 * @param <T>		: 泛型方法
+	 * @param itemKey	: 对象key
+	 * @param classKey	: 对象组key
+	 * @param item		: 泛型T类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected <T> void setItem(Object itemKey,Object classKey,T item) {
+		SysParameter newItem = (SysParameter)item;
+		if (newItem.getDeleteFlag() != 0) {
+			return;
+		}
+		
+		synchronized(this) {
+			// 更新分类数据字典		
+			Map<String,SysParameter> subClassMap = null;
+			if (sysParameterMap.containsKey((String)classKey)) {
+				subClassMap = sysParameterMap.get((String)classKey);
+			}else {
+				subClassMap = new HashMap<String,SysParameter>();
+				sysParameterMap.put((String)classKey, subClassMap);
+			}
+			
+			subClassMap.put(newItem.getItemKey(),newItem);
+		}		
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: setItems
+	 * @description	: 将对象列表加入管理集合中
+	 * @param <T>		: 泛型方法
+	 * @param classKey	: 对象组key
+	 * @param items		: 对象列表
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected <T> void setItems(Object classKey,List<T> items) {
+		// 更新分类数据字典
+		Map<String,SysParameter> subClassMap = null;
+		if (sysParameterMap.containsKey((String)classKey)) {
+			// 如果该类别的key存在
+			subClassMap = sysParameterMap.get((String)classKey);
+		}else {
+			// 如果该类别的key不存在
+			subClassMap = new HashMap<String,SysParameter>();
+			//加入map中
+			sysParameterMap.put((String)classKey, subClassMap);			
+		}
+		synchronized(sysParameterMap) {
+			// 清空分类字典
+			subClassMap.clear();
+			
+			// 重新设置
+			for (T item : items) {	
+				SysParameter aItem = (SysParameter)item;
+				if (aItem.getDeleteFlag() == 0) {
+					String itemKey = aItem.getItemKey();
+					subClassMap.put(itemKey,aItem);					
+				}
+			}				
+		}		
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: logInfo
+	 * @description	: 写日志
+	 * @param methodName: 方法名
+	 * @param param		: 参数值
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/08/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	protected void logInfo(String methodName,String param) {
+		switch(methodName) {
+		case "loadItem":
+			log.info("Failed to query item data with itemKey = " + param);
+			break;
+		case "loadGroupItems":
+			log.info("Failed to query class data with classKey = " + param);
+			break;
+		default:
+			break;
+		}
 	}	
 	
 	/**

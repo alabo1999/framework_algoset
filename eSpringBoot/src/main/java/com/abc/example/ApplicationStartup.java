@@ -24,7 +24,7 @@ import com.abc.example.service.GlobalConfigService;
  */
 @Component
 public class ApplicationStartup implements ApplicationListener<ContextRefreshedEvent>{
-    //全局变量管理对象，此处不能自动注入
+    // 全局配置管理对象，此处不能自动注入
     private GlobalConfigService globalConfigService = null;
     
     private static ApplicationContext applicationContext;
@@ -33,7 +33,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         try {
     	    if(contextRefreshedEvent.getApplicationContext().getParent() == null){ 
-    	    	//root application context 没有parent.
+    	    	// root application context 没有parent.
     	    	System.out.println("========一次性加载项==================");
     	    	
     	    	System.out.println("========定义全局变量==================");
@@ -44,9 +44,9 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
     	        // 从 webApplicationContext 中获取  servletContext
     	        ServletContext servletContext = webApplicationContext.getServletContext();
     	        
-    	        //加载全局变量管理对象
+    	        // 加载全局配置管理对象
     	        globalConfigService = (GlobalConfigService)webApplicationContext.getBean(GlobalConfigService.class);
-    	        //加载数据
+    	        // 加载数据
     	        boolean bRet = globalConfigService.loadData();
     	        if (false == bRet) {
     	        	System.out.println("加载全局变量失败");

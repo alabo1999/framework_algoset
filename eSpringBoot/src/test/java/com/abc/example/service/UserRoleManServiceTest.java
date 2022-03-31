@@ -17,6 +17,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.PageInfo;
+import com.abc.example.common.constants.Constants;
 import com.abc.example.dao.UserRoleDao;
 import com.abc.example.entity.UserDr;
 import com.abc.example.entity.UserRole;
@@ -48,12 +49,9 @@ public class UserRoleManServiceTest{
 	// 账户缓存服务类对象
 	@Autowired
 	private AccountCacheService accountCacheService;
-	
-	// 全局配置服务类对象
-	@Autowired
-	private GlobalConfigService gcs;
-	
+		
 	// 单元测试服务类对象
+	@Autowired
 	private UnitTestService unitTestService;
 	
 	// 用户和角色关系对象数据访问类对象
@@ -78,18 +76,14 @@ public class UserRoleManServiceTest{
 	public void init() {
 		// 获取账号ID
 		String accountId = accountCacheService.getId(request);
-		accountCacheService.setAttribute(accountId,"username","test");
-		accountCacheService.setAttribute(accountId,"userType",1);
+		accountCacheService.setAttribute(accountId,Constants.USER_NAME,"test");
+		accountCacheService.setAttribute(accountId,Constants.USER_TYPE,2);
 		Map<String,UserDr> drMap = new HashMap<String,UserDr>();
 		UserDr userDr = new UserDr();
 		userDr.setFieldId(1);
 		userDr.setDrType((byte)3);
-		userDr.setFieldName("org_id");
 		drMap.put("orgId", userDr);
-		accountCacheService.setAttribute(accountId,"drMap",drMap);	
-		
-		// 设置单元测试服务类对象
-		unitTestService = (UnitTestService)gcs.getDataServiceObject("UnitTestService");
+		accountCacheService.setAttribute(accountId,Constants.DR_MAP,drMap);			
 	}
 	
 	/**

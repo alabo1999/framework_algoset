@@ -93,7 +93,6 @@ public class DataRightsServiceImpl implements DataRightsService {
 				// 设置默认数据权限
 				userDr = new UserDr();
 				userDr.setFieldId(item.getFieldId());
-				userDr.setFieldName(item.getFieldName());
 				userDr.setDrType(Byte.valueOf((byte)EDataRightsType.drtDefaultE.getCode()));
 				defaultUserDrList.add(userDr);
 			}			
@@ -334,6 +333,36 @@ public class DataRightsServiceImpl implements DataRightsService {
 
 	/**
 	 * 
+	 * @methodName		: getUserDr
+	 * @description	: 根据用户ID和权限字段名，获取用户数据权限对象
+	 * @param request	: request对象
+	 * @param drPropName	: 权限字段名
+	 * @return			: UserDr对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/03/11	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public UserDr getUserDr(HttpServletRequest request,String drPropName) {
+		UserDr item = null;
+		// 获取accountId
+		String accountId = accountCacheService.getId(request);	
+		Map<String,UserDr> fieldDrMap = null;
+		fieldDrMap = (Map<String,UserDr>)accountCacheService.getAttribute(accountId, Constants.DR_MAP);
+		if (fieldDrMap != null) {
+			if (fieldDrMap.containsKey(drPropName)) {
+				item = fieldDrMap.get(drPropName);
+			}
+		}
+		return item;
+	}
+	
+	/**
+	 * 
 	 * @methodName		: setUserDrs
 	 * @description	: 设置用户数据权限到账户缓存中
 	 * @param request	: request对象
@@ -449,7 +478,6 @@ public class DataRightsServiceImpl implements DataRightsService {
 			newItem = new UserDr();
 			newItem.setFieldId(item.getFieldId());
 			newItem.setUserId(userId);
-			newItem.setFieldName(item.getFieldName());
 			newItem.setDrType(item.getDrType());
 			// 新增用户数据权限记录
 			userDrDao.insertItem(newItem);

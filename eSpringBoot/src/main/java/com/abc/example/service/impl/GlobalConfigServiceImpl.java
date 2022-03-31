@@ -36,7 +36,7 @@ public class GlobalConfigServiceImpl implements GlobalConfigService{
 	@Autowired	
 	private TableCodeConfigService tableCodeConfigService;
 	
-	// 系统参数地下服务
+	// 系统参数对象服务
 	@Autowired
 	private SysParameterService sysParameterService;
 		
@@ -82,27 +82,40 @@ public class GlobalConfigServiceImpl implements GlobalConfigService{
 		try {
 			// 加载数据表ID配置数据
 			bRet = tableCodeConfigService.loadData();
+			if(!bRet) {
+				return false;
+			}
 			
 			// 加载系统参数数据
 			bRet = sysParameterService.loadData();
+			if(!bRet) {
+				return false;
+			}
 			
 			// 加载角色数据
 			bRet = roleService.loadData();
+			if(!bRet) {
+				return false;
+			}
 			
 			// 加载功能树数据
 			bRet = functionService.loadData();
+			if(!bRet) {
+				return false;
+			}
 			
 			// 加载角色功能树数据
 			roleFuncRightsService.setFunctionTree(functionService.getFunctionTree());
 			bRet = roleFuncRightsService.loadData();
+			if(!bRet) {
+				return false;
+			}
 			
 			// 初始化单元测试服务对象
 			unitTestService.init();			
 			// 查询全部系统参数
 			List<SysParameter> sysParamList = sysParameterDao.selectAllItems();
-			unitTestService.setEnums(sysParamList);
-			
-									
+			unitTestService.setEnums(sysParamList);											
 		}catch(Exception e) {
 			LogUtil.error(e);
 			bRet = false;

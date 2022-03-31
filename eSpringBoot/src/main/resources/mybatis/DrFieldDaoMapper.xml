@@ -5,11 +5,11 @@
 
     <insert id="insertItem" parameterType="com.abc.example.entity.DrField">
         INSERT INTO exa_dr_fields(
-            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            field_id,field_name,field_desc,prop_name,invalid_value,has_sub,is_user_prop,is_id,
             remark,operator_name
         )
         VALUES(
-            #{fieldId},#{fieldName},#{invalidValue},#{hasSub},
+            #{fieldId},#{fieldName},#{fieldDesc},#{propName},#{invalidValue},#{hasSub},
             #{isUserProp},#{isId},#{remark},#{operatorName}
         )
     </insert>
@@ -20,6 +20,12 @@
         <set>
             <if test='fieldName != null'>
                 field_name = #{fieldName,jdbcType=VARCHAR},
+            </if>
+            <if test='fieldDesc != null'>
+                field_desc = #{fieldDesc,jdbcType=VARCHAR},
+            </if>
+            <if test='propName != null'>
+                prop_name = #{propName,jdbcType=VARCHAR},
             </if>
             <if test='invalidValue != null'>
                 invalid_value = #{invalidValue,jdbcType=VARCHAR},
@@ -49,7 +55,7 @@
     
     <select id="selectItemByKey" resultType="com.abc.example.entity.DrField">
         SELECT 
-            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            field_id,field_name,field_desc,prop_name,invalid_value,has_sub,is_user_prop,is_id,
             remark,operator_name,delete_flag,create_time,update_time
         FROM
             exa_dr_fields
@@ -59,7 +65,7 @@
     
     <select id="selectItems" resultType="com.abc.example.entity.DrField">
         SELECT 
-            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            field_id,field_name,field_desc,prop_name,invalid_value,has_sub,is_user_prop,is_id,
             remark,operator_name,delete_flag,create_time,update_time
         FROM
             exa_dr_fields
@@ -75,7 +81,7 @@
 
     <select id="selectAllItems" resultType="com.abc.example.entity.DrField">
         SELECT 
-            field_id,field_name,invalid_value,has_sub,is_user_prop,is_id,
+            field_id,field_name,field_desc,prop_name,invalid_value,has_sub,is_user_prop,is_id,
             remark,operator_name,delete_flag,create_time,update_time
         FROM
             exa_dr_fields

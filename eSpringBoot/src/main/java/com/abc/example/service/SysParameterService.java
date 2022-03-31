@@ -32,9 +32,10 @@ public interface SysParameterService{
 	
 	/**
 	 * 
-	 * @methodName		: getParameterClass
+	 * @methodName		: getItemsByClass
 	 * @description	: 获取指定classKey的参数类别的子项列表
 	 * @param classKey	: 参数类别key
+	 * @param refresh	: true表示查询数据库强制刷新,false为从内存中取值
 	 * @return			: 指定classKey的参数类别的子项列表
 	 * @history		:
 	 * ------------------------------------------------------------------------------
@@ -43,14 +44,15 @@ public interface SysParameterService{
 	 * 2021/01/01	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	public List<SysParameter> getParameterClass(String classKey);
+	public List<SysParameter> getItemsByClass(String classKey,boolean refresh);
 	
 	/**
 	 * 
-	 * @methodName		: getParameterItemByKey
+	 * @methodName		: getItemByKey
 	 * @description	: 根据classKey和itemKey获取参数子项
 	 * @param classKey	: 参数类别key
 	 * @param itemKey	: 子项key
+	 * @param refresh	: true表示查询数据库强制刷新,false为从内存中取值
 	 * @return			: SysParameter对象
 	 * @history		: 
 	 * ------------------------------------------------------------------------------
@@ -59,11 +61,11 @@ public interface SysParameterService{
 	 * 2021/01/01	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	public SysParameter getParameterItemByKey(String classKey,String itemKey);
+	public SysParameter getItemByKey(String classKey,String itemKey,boolean refresh);
 	
 	/**
 	 * 
-	 * @methodName		: getParameterItemByValue
+	 * @methodName		: getItemByValue
 	 * @description	: 根据classKey和itemValue获取参数子项
 	 * @param classKey	: 参数类别key	
 	 * @param itemValue	: 子项值
@@ -75,5 +77,35 @@ public interface SysParameterService{
 	 * 2021/01/01	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	public SysParameter getParameterItemByValue(String classKey,String itemValue);
+	public SysParameter getItemByValue(String classKey,String itemValue);
+	
+	/**
+	 * 
+	 * @methodName		: removeItemByKey
+	 * @description	: 根据classKey和itemKey移除参数子项
+	 * @param classKey	: 参数类别key
+	 * @param itemKey	: 子项key
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/04/17	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void removeItemByKey(String classKey,String itemKey);
+	
+	/**
+	 * 
+	 * @methodName		: removeItemsByClass
+	 * @description	: 根据classKey移除参数类别
+	 * @param classKey	: 参数类别key
+	 * @param itemKey	: 子项key
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/04/17	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void removeItemsByClass(String classKey);	
 }
