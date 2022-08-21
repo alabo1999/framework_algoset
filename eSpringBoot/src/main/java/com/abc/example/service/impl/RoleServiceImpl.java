@@ -186,7 +186,7 @@ public class RoleServiceImpl implements RoleService{
 		boolean bRet = false;
 		List<UserRole> userRoleList = getUserRolesByUserId(userId);
 		for (UserRole userRole : userRoleList) {
-			if (userRole.getRoleId() == roleId) {
+			if (userRole.getRoleId() == roleId.intValue()) {
 				// 如果角色ID为指定角色ID
 				bRet = true;
 				break;

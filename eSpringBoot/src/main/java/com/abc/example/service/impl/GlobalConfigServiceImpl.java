@@ -11,11 +11,13 @@ import com.abc.example.entity.SysParameter;
 import com.abc.example.service.ChangeNotifyService;
 import com.abc.example.service.FunctionTreeService;
 import com.abc.example.service.GlobalConfigService;
+import com.abc.example.service.OrgnizationService;
 import com.abc.example.service.RoleFuncRightsService;
 import com.abc.example.service.RoleService;
 import com.abc.example.service.SysParameterService;
 import com.abc.example.service.TableCodeConfigService;
 import com.abc.example.service.UnitTestService;
+import com.abc.example.service.DataRightsService;
 
 
 /**
@@ -56,12 +58,18 @@ public class GlobalConfigServiceImpl implements GlobalConfigService{
 	@Autowired 	
 	private ChangeNotifyService changeNotifyService;	
 	
+	// 数据权限服务
+	@Autowired
+	private DataRightsService dataRightsService;	
+	
 	// 单元测试服务类对象
 	@Autowired
 	private UnitTestService unitTestService;
 	@Autowired
 	private SysParameterDao sysParameterDao;
 			
+	@Autowired
+	private OrgnizationService orgService;	
 	
 	/**
 	 * 
@@ -110,6 +118,18 @@ public class GlobalConfigServiceImpl implements GlobalConfigService{
 			if(!bRet) {
 				return false;
 			}
+			
+			// 组织对象
+			bRet = orgService.loadData();
+			if(!bRet) {
+				return false;
+			}
+						
+			// 加载数据权限服务
+			bRet = dataRightsService.loadData();
+			if(!bRet) {
+				return false;
+			}			
 			
 			// 初始化单元测试服务对象
 			unitTestService.init();			
@@ -162,6 +182,12 @@ public class GlobalConfigServiceImpl implements GlobalConfigService{
 		case "UnitTestService":
 			retObj = unitTestService;
 			break;
+		case "DataRightsService":
+			retObj = dataRightsService;
+			break;	
+		case "OrgnizationService":
+			retObj = orgService;
+			break;				
 		default:
 			break;
 		}

@@ -102,6 +102,55 @@ public class UserManController extends BaseController{
 	}
 	
 	/**
+	 * @methodName		: resetPassword
+	 * @description	: 管理员重置密码
+	 * @param request	: request对象
+	 * @param params	: 设置参数，形式如下：
+	 * 	{
+	 * 		"userId"	: 0, 	//用户ID
+	 * 		"password"	: "",  	//新密码
+	 * 	}
+	 * @return			: BaseResponse对象，无data
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/07	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@RequestMapping("/reset")
+	public BaseResponse<Object> resetPassword(HttpServletRequest request,
+			 @RequestBody Map<String, Object> params) {
+		userManService.resetPassword(request, params);
+		return successResponse();
+	}
+
+	/**
+	 * @methodName		: changePassword
+	 * @description	: 用户自己修改密码
+	 * @param request	: request对象
+	 * @param params	: 设置参数，形式如下：
+	 * 	{
+	 * 		"oldPassword"	: "",  	//原密码,md5值
+	 * 		"newPassword"	: "",  	//新密码,md5值
+	 * 		"confirmPassword"	: "",  	//确认密码,md5值
+	 * 	}
+	 * @return			: BaseResponse对象，无data
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/07	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@RequestMapping("/changePassword")
+	public BaseResponse<Object> changePassword(HttpServletRequest request,
+			 @RequestBody Map<String, Object> params) {
+		userManService.changePassword(request, params);
+		return successResponse();
+	}
+	
+	/**
 	 * @methodName		: queryItems
 	 * @description		: 根据条件分页查询用户对象列表
 	 * @param request	: request对象
@@ -128,7 +177,7 @@ public class UserManController extends BaseController{
 	 * 2021/01/07	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<User>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<User> pageInfo = userManService.queryItems(request, params);
@@ -167,7 +216,7 @@ public class UserManController extends BaseController{
 	 * 		"userName"		: "",	// 用户名，可选
 	 * 		"phoneNumber"	: "",	// 手机号码，可选
 	 * 		"email"			: "",	// Email，可选
-	 * 		"drId"			: 0,	// 权限相关对象ID，可选
+	 * 		"orgId"			: 0,	// 组织ID，可选
 	 * 		"deleteFlag"	: 0,	// 记录删除标记，0-正常、1-禁用，可选
 	 * 		"openId"		: "",	// 微信小程序的openid，可选
 	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选

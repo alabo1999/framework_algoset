@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @className		: ExceptionHandler
+ * @className		: UniveralExceptionHandler
  * @description	: 通用异常处理类
  * @summary		:
  * @history		:

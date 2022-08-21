@@ -172,6 +172,9 @@
             <if test='orgName != null'>
                 AND org_name = #{orgName,jdbcType=VARCHAR}
             </if>
+            <if test='district != null'>
+                AND district = #{district,jdbcType=VARCHAR}
+            </if>             
             <if test='deleteFlag != null'>
                 AND delete_flag = #{deleteFlag,jdbcType=TINYINT}
             </if>
@@ -193,10 +196,10 @@
         </if>
     </select>
 
-    <select id="selectItemByName" resultType="com.nenginfo.g602.entity.Orgnization">
+    <select id="selectItemByName" resultType="com.abc.example.entity.Orgnization">
         SELECT 
             org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
-            phone_number,email,address,zipcode,district,district_level,parent_id,app_id,
+            phone_number,email,address,zipcode,district,district_level,parent_id,
             lon,lat,remark,operator_name,delete_flag,create_time,update_time
         FROM
             exa_orgnizations

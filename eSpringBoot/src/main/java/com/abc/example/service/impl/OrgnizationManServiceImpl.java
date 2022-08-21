@@ -89,13 +89,7 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		drs.checkUserDrByOrgId(request, item.getParentId());
 		
 		// 检查orgName唯一性
-		checkUniqueInfo(item.getOrgName());
-		
-		
-		Map<String,Object> params = new HashMap<String,Object>();
-		// 父组织对象
-		params.put("orgId", item.getParentId());
-		drs.checkUserDr(request, params);		
+		checkUniqueInfo(item.getOrgName());		
 		
 		// 获取全局记录ID
 		TableCodeConfigService tccs = (TableCodeConfigService)gcs.getDataServiceObject("TableCodeConfigService");

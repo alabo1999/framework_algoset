@@ -378,7 +378,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 			Map<String,Object> map = (Map<String,Object>)params;
 			
 			// 检查项: userId,roleId
-			checkKeyFields(map,new String[] {"userId", "roleId"});
+			checkOpKeyFields(map,new String[] {"userId", "roleId"});
 		}
 		break;
 		case "getItem":

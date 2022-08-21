@@ -119,7 +119,7 @@ public class RoleManController extends BaseController{
 	 * 2021/01/21	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<Role>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<Role> pageInfo = roleManService.queryItems(request, params);

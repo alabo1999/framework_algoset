@@ -6,16 +6,21 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.PageHelper;
+import com.abc.example.common.constants.Constants;
+import com.abc.example.common.utils.LogUtil;
 import com.abc.example.common.utils.Utility;
 import com.abc.example.exception.BaseException;
 import com.abc.example.exception.ExceptionCodes;
@@ -218,7 +223,7 @@ public class BaseService {
 		// 获取accountId
 		String accountId = accountCacheService.getId(request);
 		// 获取用户名	
-		Object userNameObj = accountCacheService.getAttribute(accountId, "userName");		
+		Object userNameObj = accountCacheService.getAttribute(accountId, Constants.USER_NAME);		
 		if (userNameObj != null) {
 			userName = (String)userNameObj;
 		}else {
@@ -335,5 +340,115 @@ public class BaseService {
     		// 关闭流
         	Utility.closeStream(bis);
         }
-    }		
+    }
+	
+	/**
+	 * 
+	 * @methodName		: upload
+	 * @description	: 保存上传文件，并返回临时文件名
+	 * @param upfile	: MultipartFile类型对象
+	 * @return			: 临时文件名
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/03/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public String upload(MultipartFile upfile,String uploadDir) {
+    	//获取上传的文件名
+    	String fileName = upfile.getOriginalFilename(); 
+    	//后缀名
+        String suffixName = fileName.substring(fileName.lastIndexOf("."));
+        //新文件名，随机6个字符，避免重复
+        String randomStr = RandomStringUtils.randomAlphanumeric(6);
+        long current = System.currentTimeMillis();
+        String randomFilename = randomStr + "_" + current;
+    	//临时文件名
+    	String tmpFilename = randomFilename + suffixName; 
+    	//临时目录路径
+        String filePath = uploadDir + "/" + tmpFilename;
+        File dest = new File(filePath);
+        try {
+        	//上传文件
+        	upfile.transferTo(dest);
+        } catch (Exception e) {
+            LogUtil.error(e);
+            throw new BaseException(ExceptionCodes.UPLOAD_READFILE_FAILED);
+        }
+        
+		return tmpFilename;
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: moveFile
+	 * @description	: 移动文件
+	 * @param src		: 源文件路径
+	 * @param dest		: 目标文件路径
+	 * @return			: 移动成功返回true，否则为false。
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/03/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void moveFile(String src, String dest) {
+		// 检查源文件
+		if(Utility.checkFileExist(src) == false) {
+			throw new BaseException(ExceptionCodes.READFILE_FAILED);
+		}
+		
+		if(Utility.checkFileExist(dest)) {
+			// 如果目标路径已存在
+			// 删除目标文件
+			try {
+				Utility.deleteFile(dest);				
+			}catch(Exception e) {
+				LogUtil.error(e);
+				throw new BaseException(ExceptionCodes.COPYFILE_FAILED);				
+			}
+		}
+		
+		// 复制文件
+		boolean bRet = Utility.copyFile(src,dest);
+		if (bRet == false) {
+			throw new BaseException(ExceptionCodes.COPYFILE_FAILED);							
+		}
+		
+		// 删除源文件
+		try {
+			Utility.deleteFile(src);				
+		}catch(Exception e) {
+			LogUtil.error(e);
+			throw new BaseException(ExceptionCodes.DELETEFILE_FAILED);				
+		}		
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: checkRigts
+	 * @description	: 检查系统管理员权限
+	 * @param request	: request对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/07	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	public void checkAdminRigts(HttpServletRequest request) {
+		// 检查当前用户是否有系统管理员权限
+		String accountId = accountCacheService.getId(request);
+		List<Integer> roleIdList = (List<Integer>)accountCacheService.getAttribute(
+				accountId, Constants.ROLE_ID_LIST);
+		if (roleIdList == null) {
+			throw new BaseException(ExceptionCodes.SESSION_DATA_WRONG,"roleIdList");
+		}
+		if (!roleIdList.contains(Constants.SA_ROLE_ID)) {
+			throw new BaseException(ExceptionCodes.NO_RIGHTS);
+		}
+	}	
 }

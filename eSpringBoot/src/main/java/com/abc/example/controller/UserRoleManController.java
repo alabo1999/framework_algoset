@@ -137,7 +137,7 @@ public class UserRoleManController extends BaseController{
 	 * 2021/01/22	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<UserRole>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<UserRole> pageInfo = userRoleManService.queryItems(request, params);

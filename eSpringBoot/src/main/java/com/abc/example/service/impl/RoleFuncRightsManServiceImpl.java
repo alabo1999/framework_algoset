@@ -620,7 +620,7 @@ public class RoleFuncRightsManServiceImpl extends BaseService implements RoleFun
 			Map<String,Object> map = (Map<String,Object>)params;
 			
 			// 检查项: roleId,funcId
-			checkKeyFields(map,new String[] {"roleId", "funcId"});
+			checkOpKeyFields(map,new String[] {"roleId", "funcId"});
 		}
 		break;
 		case "getItem":

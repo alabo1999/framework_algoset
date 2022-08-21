@@ -250,8 +250,8 @@ public class FunctionTreeServiceImpl extends BaseCommonService implements Functi
 		
 		synchronized(this) {
 			// 更新功能树		
-			Integer funcId = newItem.getFuncId();
-			Integer parentId = newItem.getParentId();
+			int funcId = newItem.getFuncId();
+			int parentId = newItem.getParentId();
 			TreeNode<Function> node = null;
 			TreeNode<Function> parentNode = null;
 			// 获取当前节点

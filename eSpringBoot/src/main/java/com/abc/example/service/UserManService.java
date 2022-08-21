@@ -165,7 +165,7 @@ public interface UserManService {
 	 * 		"userName"		: "",	// 用户名，可选
 	 * 		"phoneNumber"	: "",	// 手机号码，可选
 	 * 		"email"			: "",	// Email，可选
-	 * 		"drId"			: 0,	// 权限相关对象ID，可选
+	 * 		"orgId"			: 0,	// 组织ID，可选
 	 * 		"deleteFlag"	: 0,	// 记录删除标记，0-正常、1-禁用，可选
 	 * 		"openId"		: "",	// 微信小程序的openid，可选
 	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选

@@ -75,6 +75,7 @@ public interface SysParameterDao {
 	 * 	{
 	 * 		"classId"	: 0,	// 参数类别ID，可选
 	 * 		"classKey"	: "",	// 参数类别key，可选
+	 * 		"itemKey"	: "",	// 子项key，可选
 	 * 	}
 	 * @return			: 受影响的记录数
 	 * @history			:

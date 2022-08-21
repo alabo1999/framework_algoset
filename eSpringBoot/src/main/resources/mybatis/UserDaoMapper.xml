@@ -145,10 +145,10 @@
             <if test='userName != null'>
                 AND user_name = #{userName,jdbcType=VARCHAR}
             </if>
-            <if test='phoneNumber != null'>
+            <if test='phoneNumber != null and "" != phoneNumber'>
                 AND phone_number = #{phoneNumber,jdbcType=VARCHAR}
             </if>
-            <if test='idNo != null'>
+            <if test='idNo != null and "" != idNo'>
                 AND id_no = #{idNo,jdbcType=VARCHAR}
             </if>
             <if test='email != null'>
@@ -216,7 +216,7 @@
             )
     </select>
     
-    <select id="selectItemByKeyInfo" resultType="com.nenginfo.g602.entity.User">
+    <select id="selectItemByKeyInfo" resultType="com.abc.example.entity.User">
         SELECT 
             user_id,user_name,password,salt,user_type,org_id,real_name,email,
             phone_number,sex,birth,id_no,open_id,woa_openid,remark,operator_name,

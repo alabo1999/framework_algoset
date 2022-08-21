@@ -13,13 +13,13 @@ package com.abc.example.common.impexp;
  */
 public class ImpExpConstants {
 	// 读取数据至尾部
-	public static final Integer READ_TO_TAIL = -1;
+	public static final int READ_TO_TAIL = -1;
 
 	// 异常发生时的处理策略
-	public static final Integer CONTINUE_ON_ERROR = 0;
-	public static final Integer STOP_ON_ERROR = 1;
+	public static final int CONTINUE_ON_ERROR = 0;
+	public static final int STOP_ON_ERROR = 1;
 	
 	// 错误数据列号显示方式
-	public static final Integer COLUMN_ALPHABET = 0;
-	public static final Integer COLUMN_INDEX = 1;
+	public static final int COLUMN_ALPHABET = 0;
+	public static final int COLUMN_INDEX = 1;
 }

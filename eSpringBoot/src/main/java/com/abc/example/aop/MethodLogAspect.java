@@ -73,7 +73,9 @@ public class MethodLogAspect {
                     object instanceof HttpServletResponse) {
                 continue;
             }
-            paramsString += object.toString();
+            if (object != null) {
+                paramsString += object.toString();            	
+            }            
         }
         log.info("Request -- path: {}; user: {}; args: {}",servletPath,baseService.getUserName(request),paramsString);                	
     }	

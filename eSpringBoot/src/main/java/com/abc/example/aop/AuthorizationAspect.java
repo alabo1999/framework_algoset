@@ -163,6 +163,13 @@ public class AuthorizationAspect {
 		// 获取角色ID列表
 		@SuppressWarnings("unchecked")
 		List<Integer> roleIdList = (List<Integer>)accountCacheService.getAttribute(accountId,Constants.ROLE_ID_LIST);
+		if (roleIdList == null) {
+			throw new BaseException(ExceptionCodes.SESSION_DATA_WRONG);
+		}
+		if (roleIdList.size() == 0) {
+			throw new BaseException(ExceptionCodes.ACCESS_FORBIDDEN);
+		}
+		
 		// 获取当前接口url值
 		String servletPath = request.getServletPath();
 				

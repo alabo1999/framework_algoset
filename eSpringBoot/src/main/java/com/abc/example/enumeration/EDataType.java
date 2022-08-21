@@ -12,16 +12,29 @@ package com.abc.example.enumeration;
  *
  */
 public enum EDataType {
-	dtTinyIntE (1),	//有符号1字节整数
-	dtUTinyIntE (2),	//无符号1字节整数
-	dtSmallIntE (3),	//有符号2字节整数
-	dtUSmallIntE (4),	//无符号2字节整数
-	dtMediumIntE (5),	//有符号3字节整数
-	dtUMediumIntE (6),	//无符号3字节整数
-	dtIntE (7),			//有符号4字节整数
-	dtUIntE (8),		//无符号4字节整数
-	dtBigIntE (9),		//有符号8字节整数
-	dtUBigIntE (10),	//无符号8字节整数
+	dtCharE (1),		// 字符
+	dtByteE (2),		// 字节
+	dtShortE (3),		// 有符号短整型
+	dtUShortE (4),		// 无符号短整型
+	dtIntE (5),			// 有符号整型
+	dtUIntE (6),		// 无符号整型
+	dtLongE (7),		// 有符号长整型
+	dtULongE (8),		// 无符号长整型
+	dtFloatE (9),		// 单精度浮点数
+	dtDoubleE (10),		// 双精度浮点数
+	dtArrayE (11),		// 数组
+	dtStructE (12),		// 结构体
+	dtStringE (13),		// 字符串
+	dtByteArrayE (14),	// 字节数组
+	dtBooleanE (15),	// Int型0/1值
+	dtEnumE (16),		// 枚举类型，由系统参数定义
+	dtCustomEnumE (17),// 自定义枚举类型
+	dtLocalDateE (18),	// 日期类型
+	dtLocalTimeE (19),	// 时间类型
+	dtLocalDateTimeE (20),	// 日期时间类型
+	dtDateE (21),		// 日期时间类型
+	dtMapE (22),		// 字典
+	dtURLE (23),		// URL类型
 
 	;	//结束定义
 	

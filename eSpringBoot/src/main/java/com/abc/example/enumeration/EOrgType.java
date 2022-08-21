@@ -13,10 +13,7 @@ package com.abc.example.enumeration;
  */
 public enum EOrgType {
 	otOurCompanyE (1),	// 本公司
-	otGovernmentE (2),	// 政府管理部门
-	otSchoolE (3),		// 教培机构
-	otEnterpriseE (4),	// 企业
-	otAppE (5),			// 培训平台
+
 	;	//结束定义
 	
 	//枚举值对应的code值

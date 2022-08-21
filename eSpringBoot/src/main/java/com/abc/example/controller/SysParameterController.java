@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abc.example.common.utils.LogUtil;
+import com.abc.example.entity.Role;
 import com.abc.example.entity.SysParameter;
 import com.abc.example.exception.BaseException;
 import com.abc.example.exception.ExceptionCodes;
 import com.abc.example.service.GlobalConfigService;
+import com.abc.example.service.RoleService;
 import com.abc.example.service.SysParameterService;
 import com.abc.example.vo.common.BaseResponse;
 
@@ -181,6 +183,26 @@ public class SysParameterController extends BaseController {
 			throw new BaseException(ExceptionCodes.ARGUMENTS_ERROR);
 		}		
 		return successResponse(sysParameter);
-	}			
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: getRoles
+	 * @description	: 获取角色列表
+	 * @param request	: request对象
+	 * @return			: BaseResponse对象，data部分的数据为Role类型对象列表
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/01/01	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@RequestMapping("/getRoles")
+	public BaseResponse<List<Role>> getRoles(HttpServletRequest request){
+		RoleService rs = (RoleService)gcs.getDataServiceObject("RoleService");
+		List<Role> roleList = rs.getRoleItems();
+		return successResponse(roleList);
+	}		
 
 }

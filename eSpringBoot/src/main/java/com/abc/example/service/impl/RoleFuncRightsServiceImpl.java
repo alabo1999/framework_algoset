@@ -235,6 +235,9 @@ public class RoleFuncRightsServiceImpl implements RoleFuncRightsService{
 		Integer rights = 1;
 		
 		// 正序排序
+		if (roleIdList == null || roleIdList.size() == 0) {
+			return 0;
+		}		
 		roleIdList.sort(Comparator.comparingInt(Integer::intValue));
 		// 角色ID列表输出字符串，作为key
 		String roleIdsStr = roleIdList.toString();

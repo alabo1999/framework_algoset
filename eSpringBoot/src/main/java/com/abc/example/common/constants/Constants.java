@@ -29,13 +29,16 @@ public class Constants {
     public static final int INVALID_COL_INDEX = -1;         
       
     // 无效值
-    public static final Integer INVALID_VALUE = 0;
+    public static final int INVALID_VALUE = 0;
 
     // 有效值
-    public static final Integer VALID_VALUE = 1;
+    public static final int VALID_VALUE = 1;
     
     // 全部值
-    public static final Integer ALL_VALUE = 0;
+    public static final int ALL_VALUE = 0;
+    
+    // 浮点0值
+    public static final double DOUBLE_ZERO = 0.000001;
     
     // =================================================================
     // 账号缓存的属性key值

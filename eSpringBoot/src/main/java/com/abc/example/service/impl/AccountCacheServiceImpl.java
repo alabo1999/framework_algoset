@@ -258,7 +258,9 @@ public class AccountCacheServiceImpl implements AccountCacheService{
 		if (sessionId == null) {
 			// 如果header中无指定属性
 			// 表示可以使用Session中的SessionId
-			sessionId = request.getSession().getId();
+			if (request.getSession() != null) {
+				sessionId = request.getSession().getId();
+			}
 		}
 		return sessionId;
 	}

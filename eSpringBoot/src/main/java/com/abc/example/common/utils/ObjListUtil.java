@@ -180,46 +180,85 @@ public class ObjListUtil {
      * date			version		modifier		remarks                   
      * ------------------------------------------------------------------------------
      * 2021/01/01	1.0.0		sheng.zheng		初版
+     * 2021/08/18	1.0.1		sheng.zheng		使用Map来缓存，以提供算法效率
      *
      */
     public static <T> void removeDuplicate(Map<String,Integer> fieldMap,List<T> inputList,
     		List<T> dupList){
-    	// 开始比较下标
-    	int pos = 0;
-    	while (true) {
-    		if (inputList.size() -1 < pos) {
-    			break;
-    		}    		
-    		// 标记对象是否重复
-    		boolean found = false;    		
-    		
-    		// 被比较对象
-    		T compItem = inputList.get(pos);
-    		
-    		// 遍历列表
-    		for (int i = pos + 1; i < inputList.size(); i++) {
-    			// 比较对象
-    			T newItem = inputList.get(i);
-    			int compare = compareTwoItem(fieldMap,newItem,compItem);
-    			if (compare == 1 || compare == 3) {
-    				// 键值相同，为重复对象
-    				found = true;
-    				// 结束本次比较
-    				break;
-    			}
-    		}
-    		if (found == true) {
-    			// 对象重复
-    			dupList.add(compItem);
-    			// 移除重复项
-    			inputList.remove(pos);
-    			// 注意，移除后，当前位置不变
+    	Map<String,T> keyMap = new HashMap<String,T>();
+    	T item = null;
+    	String key = "";
+    	// 倒序遍历inputList，并加入字典
+    	for (int i = inputList.size() - 1; i >= 0; i--) {
+    		item = inputList.get(i);
+    		key = getKey(fieldMap,item);
+    		if (keyMap.containsKey(key)) {
+    			// 如果已存在key值对象，表示重复
+    			// 加入重复列表
+    			dupList.add(item);
+    			// 移除重复对象
+    			inputList.remove(i);
     		}else {
-    			// 不重复，处理下一个
-    			pos ++;    			
+    			// 如果为新key
+    			keyMap.put(key, item);
     		}
-    		
     	}
+    	
+    	keyMap.clear();
+    }
+    
+    /**
+     * 
+     * @methodName		: getKey
+     * @description	: 获取对象的关键字段值组成的key
+     * @param <T>		: 泛型类型
+     * @param fieldMap	: 比较字段字典，key为字段名称
+     * @param item		: T类型对象
+     * @return			: key
+     * @history		:
+     * ------------------------------------------------------------------------------
+     * date			version		modifier		remarks                   
+     * ------------------------------------------------------------------------------
+     * 2022/08/18	1.0.0		sheng.zheng		初版
+     *
+     */
+    @SuppressWarnings("unchecked")
+	public static <T> String getKey(Map<String,Integer> fieldMap,T item) {
+    	String key = "";
+    	try {
+    		if(fieldMap != null) {
+    			// 如果fieldMap非空，则表示T为结构体
+            	for (Map.Entry<String,Integer> entry : fieldMap.entrySet()) {
+            		// 取得字段名称
+            		String fieldName = entry.getKey();
+            		Integer keyFlag = entry.getValue();
+            		if (keyFlag == 0) {
+            			// 如果非key字段，则跳过
+            			continue;
+            		}
+            		// 取得新对象的当前字段值
+        			Class<T> clazz = (Class<T>) item.getClass();        		
+            		Field field = clazz.getDeclaredField(fieldName);
+            		field.setAccessible(true);
+            		Object oValue = field.get(item);
+            		if (key.isEmpty()) {
+            			key = oValue.toString();
+            		}else {
+            			key += "-" + oValue.toString();
+            		}            		
+            	}    			
+    		}else {
+    			// 如果fieldMap为空，表示T为基本数据类型，如Integer,String,
+    			key = item.toString();
+    		}
+    		return key;
+    	}catch (NoSuchFieldException e) {
+    		LogUtil.error(e);
+    		return key;
+    	}catch (IllegalAccessException e) {
+    		LogUtil.error(e);
+    		return key;
+    	}    	
     }
     
     /**
@@ -319,6 +358,17 @@ public class ObjListUtil {
     	return retList;
     }
     
+    // 计算两个列表的交集
+    public static <T> List<T> getIntersection(List<T> list1,List<T> list2){
+    	List<T> retList = new ArrayList<T>();
+    	for (T item : list1) {
+    		if (list2.contains(item)) {
+    			retList.add(item);
+    		}
+    	}
+    	return retList;
+    }
+    
     /**
      * 
      * @methodName		: getFieldValue
@@ -385,6 +435,39 @@ public class ObjListUtil {
     		LogUtil.error(e);
     	}  
 		return map;
+	}
+
+	/**
+	 * 
+	 * @methodName		: isSamePropValue
+	 * @description	: 检查列表中指定属性名的值是否都相同
+	 * @param <T>		: 泛型类型
+	 * @param list		: T类型的列表
+	 * @param propName	: 属性名
+	 * @return			: 如果都相同，返回true；否则返回false
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/12	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static <T> boolean isSamePropValue(List<T> list,String propName) {
+		if (list.size() == 0) {
+			return false;
+		}
+		// 获取第一个对象
+		T item = list.get(0);
+		Object oValue = getFieldValue(item,propName);
+		for (int i = 1; i < list.size(); i++) {
+			item = list.get(i);
+			Object oVal = getFieldValue(item,propName);
+			if (!oValue.equals(oVal)) {
+				// 如果不相对
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

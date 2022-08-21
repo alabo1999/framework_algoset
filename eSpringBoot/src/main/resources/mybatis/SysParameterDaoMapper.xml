@@ -93,6 +93,9 @@
             <if test='classKey != null'>
                 AND class_key = #{classKey,jdbcType=VARCHAR}
             </if>
+            <if test='itemKey != null'>
+                AND item_key = #{itemKey,jdbcType=VARCHAR}
+            </if>             
     </update>
     
     <delete id="deleteItemByKey">

@@ -128,7 +128,7 @@ public class OrgnizationManController extends BaseController{
 	 * 2022/02/15	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<Orgnization>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<Orgnization> pageInfo = orgnizationManService.queryItems(request, params);

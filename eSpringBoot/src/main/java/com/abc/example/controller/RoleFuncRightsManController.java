@@ -161,7 +161,7 @@ public class RoleFuncRightsManController extends BaseController{
 	 * 2021/01/22	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<RoleFuncRights>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<RoleFuncRights> pageInfo = roleFuncRightsManService.queryItems(request, params);

@@ -93,7 +93,7 @@ public class DataRightsServiceImpl implements DataRightsService {
 				// 设置默认数据权限
 				userDr = new UserDr();
 				userDr.setFieldId(item.getFieldId());
-				userDr.setDrType(Byte.valueOf((byte)EDataRightsType.drtDefaultE.getCode()));
+				userDr.setDrType((byte)EDataRightsType.drtDefaultE.getCode());
 				defaultUserDrList.add(userDr);
 			}			
 		}

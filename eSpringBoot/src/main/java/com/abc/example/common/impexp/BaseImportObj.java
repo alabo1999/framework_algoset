@@ -681,7 +681,7 @@ public class BaseImportObj<T>{
 			break;
 		case "java.time.LocalTime":
 		{
-			DateTimeFormatter df = DateTimeFormatter.ofPattern(formatDatePart);
+			DateTimeFormatter df = DateTimeFormatter.ofPattern(formatTimePart);
 			oVal = LocalTime.parse(cellData,df);
 		}
 			break;

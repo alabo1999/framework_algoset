@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -207,6 +208,77 @@ public class Utility {
 	
 	/**
 	 * 
+	 * @methodName		: moveFile
+	 * @description	: 移动文件
+	 * @param src		: 源文件路径
+	 * @param dest		: 目标文件路径
+	 * @return			: 成功返回true，否则为false
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/27	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static boolean moveFile(String src, String dest) {
+		// 确保源文件存在
+		if (checkFileExist(src) == false) {
+			return false;
+		}
+		// 复制文件
+		if (copyFile(src,dest) == false) {
+			return false;
+		}
+		// 删除源文件
+		deleteFile(src);
+		
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: renameFile
+	 * @description	: 重命名文件
+	 * @param src		: 源文件路径
+	 * @param newName	: 新的文件名
+	 * @param bForce	: 如果新的文件名的文件已存在，是否删除,true表示删除
+	 * @return			: 成功返回true，否则为false
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/28	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static boolean renameFile(String src,String newName,boolean bForce) {
+		boolean bRet = false;
+		File file = new File(src);
+		if (!file.exists()) {
+			// 文件不存在
+			return bRet;
+		}
+		// 获取原文件名
+		int dirPos = src.lastIndexOf("/");
+		if (dirPos == -1) {
+			// 不包含目录路径
+			return bRet;
+		}
+		String dir = src.substring(0,dirPos+1);
+		String newPath = dir + newName;
+		File destFile = new File(newPath);
+		if (destFile.exists() && bForce) {
+			// 如果目标文件存在，且强制删除
+			destFile.delete();
+		}
+		
+		// 重命名
+		bRet = file.renameTo(destFile);
+		
+		return bRet;
+	}
+	
+	/**
+	 * 
 	 * @methodName		: getFilenameWithoutSuffix
 	 * @description	: 取得不含后缀的文件名
 	 * @param filePath	: 文件路径
@@ -312,6 +384,17 @@ public class Utility {
 		
 		return sRet;
 	}
+	
+	public static String getUrlDecodeStr(String str) {
+		String sRet = "";
+		try {
+			sRet = URLDecoder.decode(str, charset);
+		}catch(Exception e) {
+			LogUtil.error(e);
+		}
+		
+		return sRet;		
+	}	
 	
 	/**
 	 * 
@@ -556,7 +639,7 @@ public class Utility {
 		for (int i = 0; i < methods.length; i++) {
 			Method item = methods[i];
 			// System.out.println(item.getName());
-			if (item.getName() == methodName) {
+			if (item.getName().equals(methodName)) {
 				retItem = item;
 				break;
 			}

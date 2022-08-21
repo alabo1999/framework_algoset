@@ -73,8 +73,16 @@ public class BaseExportObj {
         	
         	for (int j = 0; j < titleList.size(); j++) {
         		ImpExpFieldDef fieldItem = titleList.get(j);
+        		String fieldName = fieldItem.getFieldName();
         		// 使用反射方法，通过字段名获取属性值
-        		Object val = getFieldValue(item, fieldItem.getFieldName());
+        		Object val = null;
+        		if (fieldName.indexOf(".") == -1) {
+            		val = getFieldValue(item, fieldName);
+        		}else {
+        			// 嵌套对象属性
+        			String[] fieldNames = fieldName.split("\\.");
+        			val = getFieldValue(item, fieldNames);
+        		}        		
         		if (val != null) {
             		arrRowData[j] = val.toString();        			
         		}else {
@@ -140,5 +148,40 @@ public class BaseExportObj {
     	}  
 		return retValue;
     	
-    }    
+    } 
+    
+    /**
+     * 
+     * @methodName		: getFieldValue
+     * @description	: 取得指定嵌套字段名称的字段值，子类可重载此方法
+     * @param <T>		: 泛型T
+     * @param item		: 输入结构体对象
+     * @param fieldNames: 字段名称数组，将"a.b.c"转为[a,b,c]的数组
+     * @return			: 字段值
+     * @history		:
+     * ------------------------------------------------------------------------------
+     * date			version		modifier		remarks                   
+     * ------------------------------------------------------------------------------
+     * 2021/01/01	1.0.0		sheng.zheng		初版
+     *
+     */
+	public <T> Object getFieldValue(T item,String[] fieldNames) {
+		// 取得新对象的当前字段值
+    	Object retValue = null;
+    	try {
+    		Object object = item;
+    		for(int i = 0; i < fieldNames.length; i++) {
+    			String fieldName = fieldNames[i];
+    			Field field = object.getClass().getDeclaredField(fieldName);
+    			field.setAccessible(true);
+    			object = field.get(object);
+    		} 
+    		retValue = object;
+    	}catch (NoSuchFieldException e) {
+    		LogUtil.error(e);
+    	}catch (IllegalAccessException e) {
+    		LogUtil.error(e);
+    	}  
+		return retValue;    	
+    }      
 }

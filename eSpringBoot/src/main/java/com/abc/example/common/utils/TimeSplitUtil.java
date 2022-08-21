@@ -3,6 +3,7 @@ package com.abc.example.common.utils;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -367,4 +368,109 @@ public class TimeSplitUtil {
     	return retValue;
 	}		
 
+	/**
+	 * 
+	 * @methodName		: long2LocalDateTime
+	 * @description	: 将时间戳转为LocalDateTime类型
+	 * @param ts		: 时间戳
+	 * @return			: LocalDateTime类型
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/15	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static LocalDateTime long2LocalDateTime(long ts) {
+		LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(ts), ZoneId.of("+8"));
+		return localDateTime;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: format
+	 * @description	: 格式化
+	 * @param ldt		: LocalDateTime类型对象
+	 * @param formatter	: 格式化串
+	 * @return			: 格式化后的字符串
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/15	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static String format(LocalDateTime ldt,String formatter) {
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(formatter);
+		String strLdt = ldt.format(df);
+		return strLdt;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: parseDateTime
+	 * @description	: 将字符串转为LocalDateTime对象
+	 * @param src		: 日期时间字符串
+	 * @param formatter	: 格式化串
+	 * @return			: LocalDateTime类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/15	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static LocalDateTime parseDateTime(String src,String formatter) {
+		LocalDateTime retValue = null;
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(formatter);
+	    try {
+	    	retValue = LocalDateTime.parse(src,df);
+	    } catch (Exception e) {
+	    } 	
+	    return retValue;
+	}
+
+	/**
+	 * 
+	 * @methodName		: format
+	 * @description	: 格式化
+	 * @param ldt		: LocalDate类型对象
+	 * @param formatter	: 格式化串
+	 * @return			: 格式化后的字符串
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/15	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static String format(LocalDate ld,String formatter) {
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(formatter);
+		String strLdt = ld.format(df);
+		return strLdt;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: parseDateTime
+	 * @description	: 将字符串转为LocalDate对象
+	 * @param src		: 日期时间字符串
+	 * @param formatter	: 格式化串
+	 * @return			: LocalDate类型对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/15	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public static LocalDate parseDate(String src,String formatter) {
+		LocalDate retValue = null;
+		DateTimeFormatter df = DateTimeFormatter.ofPattern(formatter);
+	    try {
+	    	retValue = LocalDate.parse(src,df);
+	    } catch (Exception e) {
+	    } 	
+	    return retValue;
+	}		
 }

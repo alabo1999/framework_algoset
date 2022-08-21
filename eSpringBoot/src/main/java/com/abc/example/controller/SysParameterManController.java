@@ -188,7 +188,7 @@ public class SysParameterManController extends BaseController{
 	 * 2021/02/02	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	@RequestMapping("/queryItems")
+	@RequestMapping("/query")
 	public BaseResponse<List<SysParameter>> queryItems(HttpServletRequest request,
 			 @RequestBody Map<String, Object> params) {
 		PageInfo<SysParameter> pageInfo = sysParameterManService.queryItems(request, params);

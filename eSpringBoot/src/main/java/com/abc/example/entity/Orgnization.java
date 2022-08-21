@@ -40,9 +40,9 @@ public class Orgnization implements Serializable,ITreeNodeData{
 	@Column(name = "org_fullname")
 	private String orgFullname = "";
 	
-	// 机构类型，1-本公司，2-政府管理部门，3-学院
+	// 机构类型，1-本公司，其它待扩展
 	@Column(name = "org_type")
-	private Byte orgType = 3;
+	private Byte orgType = 1;
 	
 	// 组织机构分类，保留
 	@Column(name = "org_category")
@@ -176,5 +176,17 @@ public class Orgnization implements Serializable,ITreeNodeData{
 		sRet +=  "\"deleteFlag\":" + deleteFlag + ""
 				+ "}";
 		return sRet;
-	}		
+	}	
+	
+	public boolean equals(Orgnization anObject) {
+		if (this == anObject) {
+			return true;
+		}else {
+			return false;
+		}				
+	}
+	
+	public int hashCode() {
+		return super.hashCode();
+	}	
 }

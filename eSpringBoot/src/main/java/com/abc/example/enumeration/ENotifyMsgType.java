@@ -18,7 +18,7 @@ public enum ENotifyMsgType {
 	nmtUserDisabledE (0x08),		//用户禁用
 	nmtUserDrtChangeE (0x10),		//用户数据权限类型改变
 	nmtDrChangeE (0x20),			//修改权限相关对象集合导致数据权限变更
-	nmtUserDrChangeE (0x40),		//用户权限相关对象ID改变
+	nmtUserDrChangeE (0x40),		//用户组织ID改变
 	nmtUserUtChangeE (0x80),		//用户类型改变
 	
 	;	//结束定义
