@@ -119,4 +119,48 @@ public interface UserDao {
 	 *
 	 */
 	public List<User> selectItems(Map<String, Object> params);
+	
+	/**
+	 * 
+	 * @methodName		: selectCount
+	 * @description	: 查询符合条件的记录数
+	 * @param params	: 查询参数，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 		"deleteFlag"	: 0,	// 记录删除标记，0-正常、1-禁用，可选
+	 * 	}	 
+	 * @return		: 记录数
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/11	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public Integer selectCount(Map<String, Object> params);
+	
+	/**
+	 * @methodName		: selectItemByKeyInfo
+	 * @description		: 根据下列条件的任一非空值查询用户对象列表
+	 * @param params	: 查询参数，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}
+	 * @return			: 用户对象列表
+	 * @history			:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2021/02/08	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public List<User> selectItemByKeyInfo(Map<String, Object> params);		
 }

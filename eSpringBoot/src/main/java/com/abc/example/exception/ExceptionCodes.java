@@ -24,10 +24,16 @@ public enum ExceptionCodes {
     TOKEN_WRONG(12, "message.TOKEN_WRONG","token不正确，请登录"),
     SESSION_DATA_WRONG(13, "message.SESSION_DATA_WRONG","缓存数据异常，请重新登录"),
     ACCESS_FORBIDDEN(14, "message.ACCESS_FORBIDDEN","禁止访问"),
+    NO_RIGHTS(15, "message.NO_RIGHTS","无权操作"),
+    TASKID_NOT_EXIST(16, "message.TASKID_NOT_EXIST","任务ID不存在，可能已过期销毁"),
+    TASKID_NOT_RIGHTS(17, "message.TASKID_NOT_RIGHTS","无权访问此任务ID"),
+    SESSION_IS_NULL(18, "message.SESSION_IS_NULL","session为空，请重新登录"),
         
     // 数据格式
     DATE_FORMAT_WRONG(20, "message.DATE_FORMAT_WRONG", "日期格式错误"),
     DB_DATA_WRONG(21, "message.DB_DATA_WRONG", "数据库中数据错误"),
+    ARGUMENTS_IS_EMPTY(22, "message.ARGUMENTS_IS_EMPTY","参数值不能为空"),
+    ARGUMENTS_IS_INCOMPATIBLE(23, "message.ARGUMENTS_IS_INCOMPATIBLE","参数值不一致"),
     
     // 数据库操作
     ADD_OBJECT_FAILED(30, "message.ADD_OBJECT_FAILED", "新增对象失败"),
@@ -38,6 +44,8 @@ public enum ExceptionCodes {
     OBJECT_DOES_NOT_EXIST(35, "message.OBJECT_DOES_NOT_EXIST", "指定对象不存在"),
     QUERY_RESULT_IS_EMPTY(36, "message.QUERY_RESULT_IS_EMPTY", "查询结果为空集"),
     OBJECT_IS_REMOVED(37, "message.OBJECT_IS_REMOVED", "指定对象已禁用"),
+    OBJECT_ALREADY_EXISTS(38, "message.OBJECT_ALREADY_EXISTS", "指定对象已存在"),
+    OBJECT_BE_LOCKED(39, "message.OBJECT_BE_LOCKED", "指定对象被锁定，禁止修改"),
     
     // 文件上传
     UPLOAD_NULL_FILE(40, "message.UPLOAD_NULL_FILE", "上传文件为空"),
@@ -54,9 +62,12 @@ public enum ExceptionCodes {
     READFILE_FAILED(50, "message.READFILE_FAILED", "读取文件失败"),
     COPYFILE_FAILED(51, "message.COPYFILE_FAILED", "复制文件失败"),
     CLOSEFILE_FAILED(52, "message.CLOSEFILE_FAILED", "关闭文件失败"),
+    DELETEFILE_FAILED(53, "message.DELETEFILE_FAILED", "删除文件失败"),
     // 文件下载
     EXPORT_EXCEL_FILE_FAILED(55, "message.EXPORT_EXCEL_FILE_FAILED", "导出Excel文件失败"),
     DOWNLOAD_FILE_FAILED(56, "message.DOWNLOAD_FILE_FAILED", "下载文件失败"),
+    EXPORT_FILE_NO_DATA(57, "message.EXPORT_FILE_NO_DATA", "无数据可导出"),
+    ZIP_FILE_FAILED(58, "message.ZIP_FILE_FAILED", "Zip压缩文件失败"),
 
     // 变更通知信息
     USER_RIGHTS_CHANGED(60, "message.USER_RIGHTS_CHANGED", "用户权限发生变更"),
@@ -87,7 +98,12 @@ public enum ExceptionCodes {
     DRTYPE_IS_UNSUPPORT(306, "message.DRTYPE_IS_UNSUPPORT", "用户数据权限类型值不支持此操作"),
     PASSWORD_IS_INCONSISTENT(307, "message.PASSWORD_IS_INCONSISTENT", "确认密码不一致"),
     NO_ROLE_ASSIGNED(308, "message.NO_ROLE_ASSIGNED", "该用户未分配角色"),
-    
+
+    KEYINFO_IS_EXIST(310, "message.KEYINFO_IS_EXIST", "关键信息已存在"),
+
+    // 400-499，组织管理模块
+    ORGID_IS_INVALID(400, "message.ORGID_IS_INVALID", "组织ID无效"),
+    ORGTYPE_IS_INVALID(401, "message.ORGTYPE_IS_INVALID", "组织类型不支持此操作"),    
     
     ;	// 定义结束
 	

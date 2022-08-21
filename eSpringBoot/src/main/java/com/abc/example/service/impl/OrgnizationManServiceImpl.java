@@ -19,6 +19,7 @@ import com.abc.example.common.utils.Utility;
 import com.abc.example.config.UploadConfig;
 import com.abc.example.dao.OrgnizationDao;
 import com.abc.example.entity.Orgnization;
+import com.abc.example.entity.SysParameter;
 import com.abc.example.enumeration.ECacheObjectType;
 import com.abc.example.enumeration.EDataOperationType;
 import com.abc.example.enumeration.EDeleteFlag;
@@ -30,6 +31,8 @@ import com.abc.example.service.DataRightsService;
 import com.abc.example.service.GlobalConfigService;
 import com.abc.example.service.TableCodeConfigService;
 import com.abc.example.service.OrgnizationManService;
+import com.abc.example.service.OrgnizationService;
+import com.abc.example.service.SysParameterService;
 
 /**
  * @className	: OrgnizationManServiceImpl
@@ -83,6 +86,12 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		checkValidForParams(request, "addItem", item);
 		
 		// 检查数据权限
+		drs.checkUserDrByOrgId(request, item.getParentId());
+		
+		// 检查orgName唯一性
+		checkUniqueInfo(item.getOrgName());
+		
+		
 		Map<String,Object> params = new HashMap<String,Object>();
 		// 父组织对象
 		params.put("orgId", item.getParentId());
@@ -112,7 +121,7 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, null, item, EDataOperationType.dotAddE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, null, orgId, EDataOperationType.dotAddE);
 		
 		// 构造返回值
 		Map<String,Object> map = new HashMap<String,Object>();
@@ -120,6 +129,28 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		
 		return map;
 	}
+	
+	/**
+	 * 
+	 * @methodName		: checkUniqueInfo
+	 * @description	: 检查名称的唯一性
+	 * @param orgName	: 组织名称
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/06/27	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	private void checkUniqueInfo(String orgName) {
+		Map<String,Object> dbParams = new HashMap<String,Object>();
+		dbParams.put("orgName", orgName);
+		dbParams.put("deleteFlag", (byte)0);
+		List<Orgnization> itemList = orgnizationDao.selectItems(dbParams);
+		if (itemList.size() > 0) {
+			throw new BaseException(ExceptionCodes.UNIQUE_KEY_FAILED,"orgName="+orgName);
+		}
+	}		
 	
 	/**
 	 * @methodName		: editItem
@@ -153,14 +184,26 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		}			
 		
 		// 父组织对象
-		if(params.containsKey("parentId")) {
-			Integer parentId = (Integer)params.get("parentId");
-			if (parentId != oldItem.getParentId()) {
-				// 如果父组织对象有变化，需检查对父对象的数据权限
-				Map<String,Object> map = new HashMap<String,Object>();
-				map.put("orgId", parentId);
-				drs.checkUserDr(request, map);			
-			}
+		Integer parentId = (Integer)params.get("parentId");
+		if(parentId == null) {
+			parentId = oldItem.getParentId();
+		}
+		if (parentId.intValue() != oldItem.getParentId()) {
+			// 如果父组织对象有变化，需检查对父对象的数据权限
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("orgId", parentId);
+			drs.checkUserDr(request, map);			
+		}
+		Integer orgType = (Integer)params.get("orgType");
+		if (orgType == null) {
+			orgType = oldItem.getOrgType().intValue();
+		}
+		
+		// 检查orgName唯一性
+		String orgName = (String)params.get("orgName");
+		if (orgName != null && !oldItem.getOrgName().equals(orgName)) {
+			// 如果组织名称有修改
+			checkUniqueInfo(orgName);			
 		}
 		
 		// 获取操作人账号
@@ -180,7 +223,7 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, oldItem, null, EDataOperationType.dotUpdateE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, orgId, null, EDataOperationType.dotUpdateE);
 		
 	}
 	
@@ -244,10 +287,10 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		
 		// 缓存一致性检查
 		 if (deleteFlag == EDeleteFlag.dfDeletedE.getCode()){
-		 	cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, oldItem, null, EDataOperationType.dotRemoveE);
+		 	cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, orgId, null, EDataOperationType.dotRemoveE);
 		 }else{
 		 	oldItem.setDeleteFlag(deleteFlag.byteValue());
-		 	cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, null, oldItem, EDataOperationType.dotAddE);
+		 	cdcs.cacheObjectChanged(ECacheObjectType.cotOrgnizationE, null, orgId, EDataOperationType.dotAddE);
 		 }
 		
 	}
@@ -290,6 +333,7 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 			processPageInfo(params);
 			// 查询记录
 			List<Orgnization> orgnizationList = orgnizationDao.selectItemsByCondition(params);
+			fillRefValue(orgnizationList);
 			// 分页对象
 			pageInfo = new PageInfo<Orgnization>(orgnizationList);
 		} catch(Exception e) {
@@ -327,6 +371,7 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		try {
 			// 查询记录
 			Orgnization item = orgnizationDao.selectItemByKey(orgId);
+			fillRefValue(item);
 			return item;
 		} catch(Exception e) {
 			LogUtil.error(e);
@@ -392,24 +437,30 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		
 		// 根据查询条件，查询数据库，获取组织机构对象列表
 		itemList = orgnizationDao.selectItemsByCondition(params);
+		if (itemList.size() == 0) {
+			throw new BaseException(ExceptionCodes.EXPORT_FILE_NO_DATA);
+		}	
+		fillRefValue(itemList);			
 		
 		// 构造导出标题列表
 		List<ImpExpFieldDef> fieldList = new ArrayList<ImpExpFieldDef>();
 		fieldList.add(new ImpExpFieldDef("orgId","组织ID",0));
-		fieldList.add(new ImpExpFieldDef("orgCode","组织机构编号",0));
-		fieldList.add(new ImpExpFieldDef("orgName","组织机构名称",0));
-		fieldList.add(new ImpExpFieldDef("orgFullname","组织机构全称",0));
-		fieldList.add(new ImpExpFieldDef("orgType","机构类型",0));
-		fieldList.add(new ImpExpFieldDef("orgCategory","组织机构分类",0));
+		fieldList.add(new ImpExpFieldDef("orgCode","组织编号",0));
+		fieldList.add(new ImpExpFieldDef("orgName","组织名称",0));
+		fieldList.add(new ImpExpFieldDef("orgFullname","组织全称",0));
+		fieldList.add(new ImpExpFieldDef("orgType","组织类型",0));
+		//fieldList.add(new ImpExpFieldDef("orgCategory","组织机构分类",0));
 		fieldList.add(new ImpExpFieldDef("leader","负责人名称",0));
 		fieldList.add(new ImpExpFieldDef("contacts","联系人",0));
 		fieldList.add(new ImpExpFieldDef("phoneNumber","联系电话",0));
 		fieldList.add(new ImpExpFieldDef("email","Email",0));
 		fieldList.add(new ImpExpFieldDef("address","地址",0));
 		fieldList.add(new ImpExpFieldDef("zipcode","邮编",0));
-		fieldList.add(new ImpExpFieldDef("district","行政区省、市、区县名称",0));
-		fieldList.add(new ImpExpFieldDef("districtLevel","",0));
+		fieldList.add(new ImpExpFieldDef("district","行政区",0));
+		fieldList.add(new ImpExpFieldDef("districtLevel","行政级别",0));
 		fieldList.add(new ImpExpFieldDef("parentId","父组织ID",0));
+		fieldList.add(new ImpExpFieldDef("parentOrgName","父组织名称",0));
+		fieldList.add(new ImpExpFieldDef("appId","平台应用ID",0));
 		fieldList.add(new ImpExpFieldDef("lon","经度",0));
 		fieldList.add(new ImpExpFieldDef("lat","纬度",0));
 		fieldList.add(new ImpExpFieldDef("remark","备注",0));
@@ -421,6 +472,29 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		String[] arrTitles = expObj.exportTitleList();
 		// 输出导出数据行
 		List<String[]> dataRowList = expObj.exportDataList(itemList);
+		
+		// 进行字段值翻译
+		SysParameterService sps = (SysParameterService)gcs.getDataServiceObject("SysParameterService");
+		String trans = "";
+		for(String[] dataRow : dataRowList) {
+			String orgType = dataRow[4];
+			SysParameter spItem = sps.getItemByKey("org_type", orgType, false);
+			if (spItem != null) {
+				trans = spItem.getItemValue();							
+			}else {
+				trans = "";
+			}
+			dataRow[4] = trans;
+			
+			String districtLevel = dataRow[12];
+			spItem = sps.getItemByKey("district_level", districtLevel, false);
+			if (spItem != null) {
+				trans = spItem.getItemValue();							
+			}else {
+				trans = "";
+			}
+			dataRow[12] = trans;
+		}
 		
 		// 使用Excel导出处理类
 		ExcelExportHandler excelExpHandler = new ExcelExportHandler();
@@ -497,5 +571,25 @@ public class OrgnizationManServiceImpl extends BaseService implements Orgnizatio
 		default:
 			break;
 		}
+	}	
+	
+	// 填充itemList中的参照信息
+	private void fillRefValue(List<Orgnization> itemList) {
+		// 填充参照信息
+		for(Orgnization item : itemList) {
+			fillRefValue(item);
+		}
 	}
+	
+	// 填充item中的参照信息
+	private void fillRefValue(Orgnization item) {
+		// 填充参照信息
+		if(item.getParentId() != 0) {
+			OrgnizationService os = (OrgnizationService)gcs.getDataServiceObject("OrgnizationService");
+			Orgnization orgObj = os.getItemByKey(item.getParentId(), false);
+			if (orgObj != null) {
+				item.setParentOrgName(orgObj.getOrgName());
+			}							
+		}
+	}	
 }

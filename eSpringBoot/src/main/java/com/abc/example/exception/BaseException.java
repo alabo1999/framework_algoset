@@ -46,6 +46,12 @@ public class BaseException extends RuntimeException{
         this.messageId = e.getMessageId();
         this.message = e.getMessage();
     }
+    
+    public BaseException(ExceptionCodes e,String message) {
+        this.code = e.getCode();
+        this.messageId = e.getMessageId();
+        this.message = e.getMessage() + ":" + message;
+    }      
 
     public BaseException(int code, String message, Throwable e) {
         this.message = message;

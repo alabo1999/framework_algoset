@@ -209,7 +209,7 @@ public class BatchProcess {
         			normalList.addAll(subList);
         			
         			// 如果当前等级不是最后一个等级，则下降等级
-        			if (levelIdx <= arrQosLevel.length -1) {
+        			if (levelIdx < arrQosLevel.length -1) {
         				levelIdx ++;
         			}
         		}catch(Exception e) {

@@ -57,5 +57,11 @@ public class Constants {
     // token
     public static final String TOKEN = "token";
     
+    public static final int SA_ROLE_ID = 1;    
+    
+    // 新建用户默认角色
+    public static final int DEFAULT_ROLE_ID = 2;
+    
+    public static final String DEFAULT_PASSWD = "C12345678"; 
     
 }

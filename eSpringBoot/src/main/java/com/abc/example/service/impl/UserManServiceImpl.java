@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageInfo;
 import com.abc.example.common.constants.Constants;
@@ -20,6 +21,7 @@ import com.abc.example.dao.UserDao;
 import com.abc.example.dao.UserDrDao;
 import com.abc.example.dao.UserRoleDao;
 import com.abc.example.entity.DrField;
+import com.abc.example.entity.Orgnization;
 import com.abc.example.entity.User;
 import com.abc.example.entity.UserCustomDr;
 import com.abc.example.entity.UserDr;
@@ -34,6 +36,7 @@ import com.abc.example.service.BaseService;
 import com.abc.example.service.CacheDataConsistencyService;
 import com.abc.example.service.DataRightsService;
 import com.abc.example.service.GlobalConfigService;
+import com.abc.example.service.OrgnizationService;
 import com.abc.example.service.TableCodeConfigService;
 import com.abc.example.service.UserManService;
 
@@ -94,7 +97,13 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 	@Override
 	public Map<String,Object> addItem(HttpServletRequest request, User item) {
 		// 输入参数校验
-		checkValidForParams(request, "addItem", item);
+		checkValidForParams(request, "addItem", item);		
+		
+		Map<String,Object> map = new HashMap<String,Object>();
+		// 检查唯一性字段
+		map.put("phoneNumber", item.getPhoneNumber());
+		map.put("idNo", item.getIdNo());
+		checkUniqueFields(map);
 		
 		// 获取全局记录ID
 		TableCodeConfigService tccs = (TableCodeConfigService)gcs.getDataServiceObject("TableCodeConfigService");
@@ -102,11 +111,21 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		Long userId = globalRecId;
 		
 		// 获取操作人账号
-		String operatorName = getUserName(request);
-		
+		String operatorName = getUserName(request);		
+		// 获取salt
+		LocalDateTime date = LocalDateTime.now();		
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		String salt = date.format(dateTimeFormatter);					
+		//设置password
+		//获取密码明文
+		String originPasswd = item.getPassword();
+		//加盐md5
+		String encryptPasswd = Md5Util.plaintPasswdToDbPasswd(originPasswd, salt,Constants.TOKEN_KEY);		
 		// 设置信息
 		item.setUserId(userId);
 		item.setOperatorName(operatorName);
+		item.setSalt(salt);
+		item.setPassword(encryptPasswd);
 		
 		// 插入数据
 		try {
@@ -122,7 +141,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		}
 		
 		// 构造返回值
-		Map<String,Object> map = new HashMap<String,Object>();
+		map.clear();
 		map.put("userId", userId);
 		
 		return map;
@@ -174,6 +193,9 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			LogUtil.error(e);
 			throw new BaseException(ExceptionCodes.UPDATE_OBJECT_FAILED);
 		}
+		
+		// 检查唯一性字段
+		checkUniqueFields(params);	
 		
 		// 缓存一致性检查
 		 User newItem = userDao.selectItemByKey(userId);
@@ -240,6 +262,11 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			LogUtil.error(e);
 			throw new BaseException(ExceptionCodes.UPDATE_OBJECT_FAILED);
 		}
+		
+		// 检查唯一性字段
+		if (deleteFlag == EDeleteFlag.dfValidE.getCode()) {
+			checkUniqueFields(params);			
+		}		
 		
 		// 缓存一致性检查
 		 if (deleteFlag == EDeleteFlag.dfDeletedE.getCode()){
@@ -392,6 +419,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 	 * 		"email"			: "",	// Email，like，可选
 	 * 		"birthStart"	: ,		// 生日起始值，gte，可选
 	 * 		"birthEnd"		: ,		// 生日终止值，lte，可选
+	 * 		"orgId"			: 1,	// 组织ID，可选
 	 * 		"pagenum"		: 1,	// 当前页码，可选
 	 * 		"pagesize"		: 10,	// 每页记录数，可选
 	 * 	}
@@ -414,6 +442,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			processPageInfo(params);
 			// 查询记录
 			List<User> userList = userDao.selectItemsByCondition(params);
+			fillRefValue(userList);
 			// 分页对象
 			pageInfo = new PageInfo<User>(userList);
 		} catch(Exception e) {
@@ -450,7 +479,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		try {
 			// 查询记录
 			User item = userDao.selectItemByKey(userId);
-			
+			fillRefValue(item);			
 			return item;
 		} catch(Exception e) {
 			LogUtil.error(e);
@@ -626,8 +655,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		List<String> fieldnameList = new ArrayList<String>();
 		fieldnameList.add("userId");
 		fieldnameList.add("fieldId");
-		fieldnameList.add("fieldName");
-		fieldnameList.add("operatorName");
+		fieldnameList.add("drType");
 		try {
 			for(UserDr item : itemList) {
 				userId = item.getUserId();
@@ -731,6 +759,7 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			item.setFieldId(fieldId);
 			item.setFieldValue(value);
 			item.setOperatorName(operatorName);
+			itemList.add(item);			
 		}
 		try {
 			// 先删除记录
@@ -749,7 +778,54 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 		// 缓存一致性检查
 		cdcs.cacheObjectChanged(ECacheObjectType.cotUserDRE, userId, null, EDataOperationType.dotUpdateE);		
 	}
-
+	
+	/**
+	 * 
+	 * @methodName		: addUserCustomDr
+	 * @description	: 增加用户自定义数据权限
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"userId"	: 0, 	//用户ID
+	 * 		"fieldId"	: 0, 	//数据权限字段ID
+	 * 		"fieldValue": 1, 	//字段值
+	 * 	}	 
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/07/04	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void addUserCustomDr(HttpServletRequest request,Map<String,Object> params) {
+		// 获取用户ID
+		Long userId = Utility.getLongValue(params, "userId");	
+		Integer fieldId = (Integer)params.get("fieldId");
+		Integer fieldValue = (Integer)params.get("fieldValue");
+		String operatorName = getUserName(request);
+		
+		UserCustomDr item = new UserCustomDr();
+		item.setUserId(userId);
+		item.setFieldId(fieldId);
+		item.setFieldValue(fieldValue);
+		item.setOperatorName(operatorName);
+		try {
+			userCustomDrDao.insertItem(item);
+		}catch(Exception e) {
+			if (e instanceof DuplicateKeyException) {
+				// 如果已存在key
+				return;
+			}else {
+				LogUtil.error(e);
+				throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED,"新增自定义数据权限");					
+			}			
+		}
+		
+		// 缓存一致性检查
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserDRE, userId, null, EDataOperationType.dotUpdateE);				
+	}
+	
 	/**
 	 * 
 	 * @methodName		: getUserCustomDrs
@@ -923,6 +999,12 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			checkKeyFields(map,new String[] {"propName"});
 		}
 			break;				
+		case "getItemByKeyInfo":
+		{
+			Map<String,Object> map = (Map<String,Object>)params;
+			checkOpKeyFields(map,new String[] {"userName","phoneNumber","idNo","openId","woaOpenid"});
+		}
+			break;				
 		default:
 			break;
 		}
@@ -955,4 +1037,257 @@ public class UserManServiceImpl extends BaseService implements UserManService{
 			userDrDao.insertItem(newItem);
 		}		
 	}
+	
+	
+	/**
+	 * 
+	 * @methodName		: getItemByKeyInfo
+	 * @description	: 根据关键信息（身份证号和手机号）获取用户对象
+	 * @param params	: 查询信息，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}	 
+	 * @return
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public User getItemByKeyInfo(Map<String, Object> params) {
+		// 输入参数校验，关键信息字段不可全为空
+		checkValidForParams(null,"getItemByKeyInfo",params);
+		// 有效的用户记录
+		params.put("deleteFlag", (byte)0);	
+		
+		User item = null;
+		List<User> itemList = userDao.selectItemByKeyInfo(params);
+		if (itemList.size() > 0) {
+			item = itemList.get(0);
+		}
+		return item;		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: getItemsCountByKeyInfo
+	 * @description	: 根据关键信息，查询记录数
+	 * @param params	: 查询信息，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}	 
+	 * @return			: 记录数
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/11	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public Integer getItemsCountByKeyInfo(Map<String, Object> params) {
+		Integer iCount = 0;
+		iCount = userDao.selectCount(params);
+		return iCount;
+	}
+	
+	/**
+	 * 
+	 * @methodName		: checkUniqueFields
+	 * @description	: 检查非空的唯一性字段集，不包含已删除记录
+	 * 	调用方法：在新增或修改后，检查唯一性字段，如异常，将执行callback操作
+	 * @param params	: 包括下列字段：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}	 
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/11	1.0.0		sheng.zheng		初版
+	 * 2022/06/06	1.0.1		sheng.zheng		统一在更新数据库中检查
+	 *
+	 */
+	private void checkUniqueFields(Map<String, Object> params) {
+		Map<String,Object> map = new HashMap<String,Object>();
+		String[] keyFields = new String[] {"userName","phoneNumber","idNo","openId","woaOpenid"};
+		for(int i = 0; i < keyFields.length; i++) {
+			// 遍历唯一字段集的所有字段名
+			String key = keyFields[i];
+			if (params.containsKey(key)) {
+				// 如果检查参数中包括此字段名
+				Object oVal = params.get(key);
+				String sVal = oVal.toString();
+				if (!sVal.isEmpty()) {
+					map.put(key, oVal);
+				}
+			}
+		}
+		Integer iCount = getItemsCountByKeyInfo(map);
+		if (iCount > 1) {
+			//String prompt = "userName,phoneNumber,idNo,openId,woaOpenid";
+			throw new BaseException(ExceptionCodes.KEYINFO_IS_EXIST.getCode(),
+					ExceptionCodes.KEYINFO_IS_EXIST.getMessage() + ":" + map.toString());			
+		}		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: addUserRole
+	 * @description	: 添加用户角色，如果用户的指定角色ID未添加，则添加
+	 * @param request	: request对象
+	 * @param userId	: 用户ID
+	 * @param roleId	: 角色ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void addUserRole(HttpServletRequest request,Long userId,Integer roleId) {
+		String operatorName = getUserName(request);
+		
+		// 设置角色，检查是否存在督导人员角色
+		UserRole userRole = null;
+		userRole = new UserRole();
+		userRole.setUserId(userId);
+		userRole.setRoleId(roleId);
+		userRole.setOperatorName(operatorName);
+		try {
+			userRoleDao.insertItem(userRole);
+		}catch(Exception e) {
+			if (e instanceof DuplicateKeyException) {
+				// 如果已存在该角色
+				return;
+			}else {
+				LogUtil.error(e);
+				throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED,"userId="+userId+",roleId="+roleId);									
+			}
+		}
+		
+		// 更新缓存
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, userId, EDataOperationType.dotAddE);
+	}	
+	
+	/**
+	 * 
+	 * @methodName		: addUser
+	 * @description	: 添加用户，此为线程调用的方法
+	 * @param item		: 用户对象，所有参数已设置
+	 * @param roleId	: 角色ID
+	 * @param udList	: 用户数据权限列表
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/16	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@Override
+	public void addUser(User item,Integer roleId,List<UserDr> udList) {
+		// 插入数据
+		try {
+			userDao.insertItem(item);
+			Long userId = item.getUserId();
+			String operatorName = item.getOperatorName();
+			
+			//  新增角色
+			addUserRole(userId,roleId,operatorName);
+			
+			// 数据库一致性处理
+			setUserDrList(udList,operatorName);
+			
+		} catch(Exception e) {
+			LogUtil.error(e);
+			throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED,e.getMessage());
+		}		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: setDefaultUserDrList
+	 * @description	: 设置默认用户数据权限列表
+	 * @param userId	: 用户ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/16	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	private void setUserDrList(List<UserDr> udList,String operatorName) {
+		for (UserDr item : udList) {
+			item.setOperatorName(operatorName);
+			// 新增用户数据权限记录
+			userDrDao.insertItem(item);
+		}		
+	}
+	
+	/**
+	 * 
+	 * @methodName		: addUserRole
+	 * @description	: 添加用户角色，如果用户的指定角色ID未添加，则添加
+	 * @param userId	: 用户ID
+	 * @param roleId	: 角色ID
+	 * @param operatorName	: 操作者账户
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/16	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	private void addUserRole(Long userId,Integer roleId,String operatorName) {
+		// 设置角色，检查是否存在督导人员角色
+		UserRole userRole = null;
+		userRole = new UserRole();
+		userRole.setUserId(userId);
+		userRole.setRoleId(roleId);
+		userRole.setOperatorName(operatorName);
+		try {
+			userRoleDao.insertItem(userRole);
+		}catch(Exception e) {
+			if (e instanceof DuplicateKeyException) {
+				// 如果已存在该角色
+				return;
+			}else {
+				LogUtil.error(e);
+				throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED,"userId="+userId+",roleId="+roleId);									
+			}
+		}		
+	}	
+	
+	// 填充itemList中的参照信息
+	private void fillRefValue(List<User> itemList) {
+		// 填充参照信息
+		for(User item : itemList) {
+			fillRefValue(item);
+		}
+	}
+	
+	// 填充item中的参照信息
+	private void fillRefValue(User item) {
+		// 填充参照信息
+		OrgnizationService os = (OrgnizationService)gcs.getDataServiceObject("OrgnizationService");
+		Orgnization orgObj = os.getItemByKey(item.getOrgId(), false);
+		if (orgObj != null) {
+			item.setOrgName(orgObj.getOrgName());
+		}
+	}	
 }

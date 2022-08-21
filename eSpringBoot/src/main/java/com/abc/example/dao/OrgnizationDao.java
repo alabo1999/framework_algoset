@@ -130,4 +130,18 @@ public interface OrgnizationDao {
 	 *
 	 */
 	public List<Orgnization> selectItems(Map<String, Object> params);
+	
+	/**
+	 * @methodName	: selectItemByName
+	 * @description	: 根据组织名称查询一个组织机构对象
+	 * @param orgName	: 组织名称
+	 * @return		: 组织对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks
+	 * ------------------------------------------------------------------------------
+	 * 2022/02/16	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public Orgnization selectItemByName(@Param("orgName") String orgName);	
 }

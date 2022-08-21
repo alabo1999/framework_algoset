@@ -193,4 +193,14 @@
         </if>
     </select>
 
+    <select id="selectItemByName" resultType="com.nenginfo.g602.entity.Orgnization">
+        SELECT 
+            org_id,org_code,org_name,org_fullname,org_type,org_category,leader,contacts,
+            phone_number,email,address,zipcode,district,district_level,parent_id,app_id,
+            lon,lat,remark,operator_name,delete_flag,create_time,update_time
+        FROM
+            exa_orgnizations
+        WHERE
+            org_name = #{orgName}
+    </select>   
 </mapper>

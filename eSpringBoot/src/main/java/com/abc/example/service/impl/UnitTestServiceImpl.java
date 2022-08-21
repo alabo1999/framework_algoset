@@ -882,6 +882,15 @@ public class UnitTestServiceImpl implements UnitTestService {
 					// 如果为数组、列表、字典，忽略
 					continue;
 				}
+				if (type.equals("java.lang.Object")) {
+					// 对象类
+					continue;
+				}
+				if(java.lang.reflect.Modifier.isFinal(field.getModifiers())){
+					// 如果为final修饰的，则忽略
+					continue;
+				}
+				
 				// 判断是否为支持的数据类型
 				boolean bSupport = isSupportedType(type);
 				if (bSupport) {
@@ -908,7 +917,9 @@ public class UnitTestServiceImpl implements UnitTestService {
                     Method method = descriptor.getReadMethod();
                     Object obj = method.invoke(item);
                     // 递归
-                    setItemWithOption(obj,fieldMap,params);
+                    if (obj != null) {
+                        setItemWithOption(obj,fieldMap,params);                    	
+                    }                    
 				}								
 			}catch(Exception e) {
 	    		e.printStackTrace();

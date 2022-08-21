@@ -158,5 +158,5 @@ public interface OrgnizationManService {
 	 *
 	 */
 	public void exportExcelFile(HttpServletRequest request,
-			 HttpServletResponse response,Map<String, Object> params);
+			 HttpServletResponse response,Map<String, Object> params);		
 }

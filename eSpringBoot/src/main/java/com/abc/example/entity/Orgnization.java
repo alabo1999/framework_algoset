@@ -84,6 +84,9 @@ public class Orgnization implements Serializable,ITreeNodeData{
 	@Column(name = "parent_id")
 	private Integer parentId = 0;
 	
+	// 父组织名称
+	private String parentOrgName;	
+	
 	// 经度
 	@Column(name = "lon")
 	private Double lon;

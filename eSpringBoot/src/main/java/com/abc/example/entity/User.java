@@ -42,6 +42,9 @@ public class User {
 	@Column(name = "org_id")
 	private Integer orgId = 0;
 	
+	// 组织名称
+	private String orgName = "";	
+	
 	// 真实姓名
 	@Column(name = "real_name")
 	private String realName = "";

@@ -275,6 +275,26 @@ public interface UserManService {
 
 	/**
 	 * 
+	 * @methodName		: addUserCustomDr
+	 * @description	: 增加用户自定义数据权限
+	 * @param request	: request对象
+	 * @param params	: 请求参数，形式如下：
+	 * 	{
+	 * 		"userId"	: 0, 	//用户ID
+	 * 		"fieldId"	: 0, 	//数据权限字段ID
+	 * 		"fieldValue": 1, 	//字段值
+	 * 	}	 
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/07/04	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void addUserCustomDr(HttpServletRequest request,Map<String,Object> params);
+	
+	/**
+	 * 
 	 * @methodName		: getUserCustomDrs
 	 * @description	: 获取用户自定义数据权限列表
 	 * @param request	: request对象
@@ -310,5 +330,81 @@ public interface UserManService {
 	 * 2021/04/18	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	public List<Integer> getCurrentUserDr(HttpServletRequest request,Map<String, Object> params);		
+	public List<Integer> getCurrentUserDr(HttpServletRequest request,Map<String, Object> params);
+	
+	/**
+	 * 
+	 * @methodName		: getItemByKeyInfo
+	 * @description	: 根据关键信息获取用户对象
+	 * @param params	: 查询信息，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}	 
+	 * @return				: User对象
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public User getItemByKeyInfo(Map<String, Object> params);
+	
+	/**
+	 * 
+	 * @methodName		: getItemsCountByKeyInfo
+	 * @description	: 根据关键信息，查询记录数
+	 * @param params	: 查询信息，形式如下：
+	 * 	{
+	 * 		"userName"		: "",	// 用户名，可选
+	 * 		"phoneNumber"	: "",	// 手机号码，可选
+	 * 		"idNo"			: "",	// 身份证号码，可选
+	 * 		"openId"		: "",	// 微信小程序的openid，可选
+	 * 		"woaOpenid"		: "",	// 微信公众号openid，可选
+	 * 	}	 
+	 * @return			: 记录数
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/11	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public Integer getItemsCountByKeyInfo(Map<String, Object> params);
+	
+	/**
+	 * 
+	 * @methodName		: addUserRole
+	 * @description	: 添加用户角色，如果用户的指定角色ID未添加，则添加
+	 * @param request	: request对象
+	 * @param userId	: 用户ID
+	 * @param roleId	: 角色ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/04/03	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void addUserRole(HttpServletRequest request,Long userId,Integer roleId);
+	
+	/**
+	 * 
+	 * @methodName		: addUser
+	 * @description	: 添加用户，此为线程调用的方法
+	 * @param item		: 用户对象，所有参数已设置
+	 * @param roleId	: 角色ID
+	 * @param udList	: 用户数据权限列表
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2022/08/16	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void addUser(User item,Integer roleId,List<UserDr> udList);	
 }

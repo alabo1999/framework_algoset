@@ -69,7 +69,21 @@ public interface DataRightsService {
 	 */
 	public void checkUserDr(HttpServletRequest request,Map<String,Object> params);
 	
-		
+	/**
+	 * 
+	 * @methodName		: checkUserDrByOrgId
+	 * @description	: 检查当前用户是否对输入的组织ID有数据权限
+	 * @param request	: request对象
+	 * @param orgId		: 组织ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/05/29	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	public void checkUserDrByOrgId(HttpServletRequest request,Integer orgId);
+	
 	/**
 	 * 
 	 * @methodName		: getQueryDrList

@@ -74,7 +74,8 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, item, EDataOperationType.dotAddE);
+		Long userId = item.getUserId();
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, userId, EDataOperationType.dotAddE);
 		
 	}
 	
@@ -119,8 +120,9 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 			throw new BaseException(ExceptionCodes.ADD_OBJECT_FAILED);
 		}
 		
-		// 缓存一致性检查		
-		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, itemList.get(0), EDataOperationType.dotAddE);
+		// 缓存一致性检查	
+		Long userId = itemList.get(0).getUserId();
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, null, userId, EDataOperationType.dotAddE);
 		
 	}
 	
@@ -170,7 +172,7 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItem, null, EDataOperationType.dotRemoveE);
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, userId, null, EDataOperationType.dotRemoveE);
 		
 	}
 	
@@ -218,7 +220,8 @@ public class UserRoleManServiceImpl extends BaseService implements UserRoleManSe
 		}
 		
 		// 缓存一致性检查
-		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, oldItemList.get(0), null, EDataOperationType.dotRemoveE);
+		Long userId = oldItemList.get(0).getUserId();
+		cdcs.cacheObjectChanged(ECacheObjectType.cotUserRoleE, userId, null, EDataOperationType.dotRemoveE);
 		
 	}
 	

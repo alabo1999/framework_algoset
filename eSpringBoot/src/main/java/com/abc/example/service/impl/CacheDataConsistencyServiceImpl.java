@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 import com.abc.example.common.utils.ObjListUtil;
 import com.abc.example.dao.UserDao;
 import com.abc.example.entity.Function;
-import com.abc.example.entity.Orgnization;
 import com.abc.example.entity.SysParameter;
 import com.abc.example.entity.User;
-import com.abc.example.entity.UserRole;
 import com.abc.example.enumeration.ECacheObjectType;
 import com.abc.example.enumeration.EDataOperationType;
 import com.abc.example.enumeration.EDeleteFlag;
@@ -120,15 +118,16 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 			break;
 		case cotUserRoleE:
 		{
+			// 参数为userId
 			switch(eDataOperationType) {
 			case dotAddE:
-				updateUserRole((UserRole)newObj);
+				updateUserRole((Long)newObj);
 				break;
 			case dotUpdateE:
-				updateUserRole((UserRole)oldObj);
+				updateUserRole((Long)oldObj);
 				break;
 			case dotRemoveE:
-				updateUserRole((UserRole)oldObj);
+				updateUserRole((Long)oldObj);
 				break;
 			default:
 				break;
@@ -137,6 +136,7 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 			break;
 		case cotUserDRE:
 		{
+			// 参数为userId
 			switch(eDataOperationType) {
 			case dotUpdateE:
 				updateUserDr((Long)oldObj);
@@ -174,15 +174,16 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 			break;	
 		case cotOrgnizationE:
 		{
+			// 参数为orgId
 			switch(eDataOperationType) {
 			case dotAddE:
-				updateOrgnization((Orgnization)newObj);
+				updateOrgnization((Integer)newObj);
 				break;
 			case dotUpdateE:
-				updateOrgnization((Orgnization)oldObj);
+				updateOrgnization((Integer)oldObj);
 				break;
 			case dotRemoveE:
-				removeOrgnization((Orgnization)oldObj);
+				removeOrgnization((Integer)oldObj);
 				break;
 			default:
 				break;
@@ -214,11 +215,11 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 		// 获取用户ID，新旧对象都不会变
 		Long userId = oldItem.getUserId();
 		ChangeNotifyService cns = (ChangeNotifyService)gcs.getDataServiceObject("ChangeNotifyService");
-		if (oldItem.getOrgId() != newItem.getOrgId()) {
+		if (oldItem.getOrgId().intValue() != newItem.getOrgId().intValue()) {
 			// 调整用户的组织ID，导致账号缓存和数据权限变更
 			cns.setChangeNotifyInfo(userId, ENotifyMsgType.nmtUserDrChangeE.getCode());										
 		}
-		if (oldItem.getUserType() != newItem.getUserType()) {
+		if (oldItem.getUserType().byteValue() != newItem.getUserType().byteValue()) {
 			// 调整用户的用户类型，导致账号缓存和可能的数据权限变更
 			cns.setChangeNotifyInfo(userId, ENotifyMsgType.nmtUserUtChangeE.getCode());	
 		}
@@ -319,8 +320,7 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 	 * 2021/04/16	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	private void updateUserRole(UserRole item) {		
-		Long userId = item.getUserId();
+	private void updateUserRole(Long userId) {		
 		// 发出变更通知
 		ChangeNotifyService cns = (ChangeNotifyService)gcs.getDataServiceObject("ChangeNotifyService");
 		// 修改用户的角色组合值：bit0
@@ -510,7 +510,7 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 	 * 
 	 * @methodName		: updateOrgnization
 	 * @description	: 刷新组织
-	 * @param item		: Orgnization对象
+	 * @param orgId		: 组织对象ID
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks                   
@@ -518,17 +518,16 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 	 * 2021/04/16	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	private void updateOrgnization(Orgnization item) {
+	private void updateOrgnization(Integer orgId) {
 		OrgnizationService os = (OrgnizationService)gcs.getDataServiceObject("OrgnizationService");
-		Integer orgId = item.getOrgId();
 		os.getItemByKey(orgId, true);
 	}
 	
 	/**
 	 * 
-	 * @methodName		: updateOrgnization
+	 * @methodName		: removeOrgnization
 	 * @description	: 移除组织
-	 * @param item		: Orgnization对象
+	 * @param orgId		: 组织对象ID
 	 * @history		:
 	 * ------------------------------------------------------------------------------
 	 * date			version		modifier		remarks                   
@@ -536,10 +535,8 @@ public class CacheDataConsistencyServiceImpl implements CacheDataConsistencyServ
 	 * 2021/04/16	1.0.0		sheng.zheng		初版
 	 *
 	 */
-	private void removeOrgnization(Orgnization item) {
+	private void removeOrgnization(Integer orgId) {
 		OrgnizationService os = (OrgnizationService)gcs.getDataServiceObject("OrgnizationService");
-		Integer orgId = item.getOrgId();
 		os.removeItem(orgId);
-	}	
-	
+	}		
 }

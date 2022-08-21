@@ -157,11 +157,16 @@ public class DataRightsServiceImpl implements DataRightsService {
 			
 			// 获取用户对此fieldId的权限
 			userDr = fieldDrMap.get(propName);
-			if (userDr.getDrType() == EDataRightsType.drtAllE.getCode()) {
+			if (userDr == null) {
+				// 未设置，表示全部权限
+				continue;				
+			}
+			
+			if (userDr.getDrType().intValue() == EDataRightsType.drtAllE.getCode()) {
 				// 如果为全部，有权限
 				continue;
 			}
-			if (userDr.getDrType() == EDataRightsType.drtDefaultE.getCode()) {
+			if (userDr.getDrType().intValue() == EDataRightsType.drtDefaultE.getCode()) {
 				// 如果为默认权限，进一步检查字段是否为有下级对象
 				if (drField.getHasSub().intValue() == 1) {
 					// 如果有下级对象，获取包含自身和下级的对象值列表
@@ -177,7 +182,7 @@ public class DataRightsServiceImpl implements DataRightsService {
 						bRights = false;
 					}
 				}
-			}else if (userDr.getDrType() == EDataRightsType.drtCustomE.getCode()){
+			}else if (userDr.getDrType().intValue() == EDataRightsType.drtCustomE.getCode()){
 				// 如果为自定义数据权限
 				List<Integer> drIdList = null;
 				if (userCustomDrList == null) {
@@ -198,7 +203,83 @@ public class DataRightsServiceImpl implements DataRightsService {
 			throw new BaseException(ExceptionCodes.ACCESS_FORBIDDEN);
 		}
 	}	
+
+	/**
+	 * 
+	 * @methodName		: checkUserDrByOrgId
+	 * @description	: 检查当前用户是否对输入的组织ID有数据权限
+	 * @param request	: request对象
+	 * @param orgId		: 组织ID
+	 * @history		:
+	 * ------------------------------------------------------------------------------
+	 * date			version		modifier		remarks                   
+	 * ------------------------------------------------------------------------------
+	 * 2021/05/29	1.0.0		sheng.zheng		初版
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void checkUserDrByOrgId(HttpServletRequest request,Integer orgId) {
+		boolean bRights = false;
 		
+		// 获取账号缓存信息
+		String accountId = accountCacheService.getId(request);
+		// 获取用户类型
+		Integer userType = (Integer)accountCacheService.getAttribute(accountId,Constants.USER_TYPE);
+		// 获取数据权限缓存信息
+		Map<String,UserDr> fieldDrMap = null;
+		fieldDrMap = (Map<String,UserDr>)accountCacheService.getAttribute(accountId, Constants.DR_MAP);
+		if (userType != null || fieldDrMap == null) {
+			if (userType == EUserType.utSystemAdminE.getCode()) {
+				// 如果为系统管理员
+				bRights = true;
+				return;
+			}
+		}else {
+			// 如果属性不存在
+			throw new BaseException(ExceptionCodes.TOKEN_EXPIRED);				
+		}
+				
+		// 获取数据权限
+		UserDr userDr = null;
+		bRights = true;
+		List<UserCustomDr> userCustomDrList = null;
+		String propName = "orgId";
+			
+		// 获取用户对此fieldId的权限
+		userDr = fieldDrMap.get(propName);
+		if (userDr.getDrType().intValue() == EDataRightsType.drtAllE.getCode()) {
+			// 如果为全部，有权限
+			return;
+		}
+		if (userDr.getDrType().intValue() == EDataRightsType.drtDefaultE.getCode()) {
+			// 如果为默认权限，进一步检查下级对象
+			List<Integer> drList = getDefaultDrList(propName);
+			boolean bFound = drList.contains(orgId);
+			if (!bFound) {
+				bRights = false;
+			}
+		}else if (userDr.getDrType().intValue() == EDataRightsType.drtCustomE.getCode()){
+			// 如果为自定义数据权限
+			List<Integer> orgIdList = null;
+			if (userCustomDrList == null) {
+				// 如果自定义列表为空，则获取
+				Long userId = (Long)accountCacheService.getAttribute(accountId,Constants.USER_ID);
+				userCustomDrList = getUserCustomDrList(userId,propName);
+				orgIdList = getUserCustomFieldList(userCustomDrList,propName);
+				if (orgIdList != null) {
+					boolean bFound = orgIdList.contains(orgId);
+					if (!bFound) {
+						bRights = false;
+					}					
+				}					
+			}
+		}			
+		if (bRights == false) {
+			throw new BaseException(ExceptionCodes.ACCESS_FORBIDDEN);
+		}		
+	}
+	
 	/**
 	 * 
 	 * @methodName		: getQueryDrList
@@ -245,13 +326,13 @@ public class DataRightsServiceImpl implements DataRightsService {
 			// 未被管理的数据权限字段，这种情况不会发生
 			return drIdList;
 		}
-		if (userDr.getDrType() == EDataRightsType.drtAllE.getCode()) {
+		if (userDr.getDrType().intValue() == EDataRightsType.drtAllE.getCode()) {
 			// 全部权限
 			return drIdList;
-		}else if (userDr.getDrType() == EDataRightsType.drtDefaultE.getCode()) {
+		}else if (userDr.getDrType().intValue() == EDataRightsType.drtDefaultE.getCode()) {
 			// 默认权限
 			drIdList = getDefaultDrList(propName);
-		}else if (userDr.getDrType() == EDataRightsType.drtCustomE.getCode()) {
+		}else if (userDr.getDrType().intValue() == EDataRightsType.drtCustomE.getCode()) {
 			// 自定义权限
 			List<UserCustomDr> userCustomDrList = null;
 			Long userId = (Long)accountCacheService.getAttribute(accountId,Constants.USER_ID);
